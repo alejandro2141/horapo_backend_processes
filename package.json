@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "nodemailer": "^6.7.2",
+    "pg": "^8.7.1"
+  }
+}
