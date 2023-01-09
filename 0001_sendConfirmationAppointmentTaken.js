@@ -99,13 +99,15 @@ const resultado = client.query(sql, (err, result) => {
           apiVersion: "2010-12-01",
           region: "us-east-2",
           defaultProvider,
+          accessKeyId : "AKIAZX6HYCD62JXS26UG",
+          secretAccessKey : "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",
         });
-
+/*
         ses.config = new aws.Config();
         ses.config.accessKeyId = "AKIAZX6HYCD62JXS26UG";
         ses.config.secretAccessKey = "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";
         ses.config.region = "us-east-2";
-        
+        */
         // create Nodemailer SES transporter
         let transporter = nodemailer.createTransport({
           SES: { ses, aws },
