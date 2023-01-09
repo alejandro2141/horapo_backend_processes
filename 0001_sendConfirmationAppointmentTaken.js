@@ -109,8 +109,8 @@ const resultado = client.query(sql, (err, result) => {
         // send some mail
         transporter.sendMail(
           {
-            from: "sender@example.com",
-            to: "recipient@example.com",
+            from: "noreply@123hora.com",
+            to: "alejandro2141@gmail.com",
             subject: "Message",
             text: "I hope this message gets sent!",
             ses: {
@@ -123,9 +123,8 @@ const resultado = client.query(sql, (err, result) => {
               ],
             },
           },
-          (err) => {
-            console.log(err.envelope);
-            console.log(err.messageId);
+          (info) => {
+            console.log("INFO:"+info);
           }
         );
 
