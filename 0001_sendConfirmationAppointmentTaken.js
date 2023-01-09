@@ -101,6 +101,10 @@ const resultado = client.query(sql, (err, result) => {
           defaultProvider,
         });
 
+        ses.config = new aws.Config();
+        ses.config.accessKeyId = "AKIAZX6HYCD62JXS26UG";
+        ses.config.secretAccessKey = "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";
+        ses.config.region = "us-east-2";
         
         // create Nodemailer SES transporter
         let transporter = nodemailer.createTransport({
