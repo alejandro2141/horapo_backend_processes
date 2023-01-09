@@ -97,9 +97,10 @@ const resultado = client.query(sql, (err, result) => {
         
         const ses = new aws.SES({
           apiVersion: "2010-12-01",
-          region: "us-east-1",
+          region: "us-east-2",
           defaultProvider,
         });
+
         
         // create Nodemailer SES transporter
         let transporter = nodemailer.createTransport({
