@@ -56,49 +56,12 @@ const resultado = client.query(sql, (err, result) => {
      
     for ( i=0 ; i<= list.length ; i++ )
     {
+      /*
       val=list.pop() ;
       console.log("Sending email to :"+ val.patient_email  );
-//****************** */
+
       let message="Estimad@ <b>"+val.patient_name+"</b> <br> Su reserva para [ESPECIALIDAD] ha sido registrada el dia:"+val.date+ " a las :"+val.start_time+" ha sido generada<br> Recuerde debe confirmar su asistencia 48 horas antes de la cita, de lo contrario su hora sera liberada para otros pacientes" ;
-            
-      let nodemailer = require("nodemailer");
       
-      let aws = require("@aws-sdk/client-ses");
-      let { defaultProvider } = require("@aws-sdk/credential-provider-node");
-
-      const ses = new aws.SES({
-        apiVersion: "2010-12-01",
-        region: "us-east-2",
-        defaultProvider,
-      });
-
-      // create Nodemailer SES transporter
-      let transporter = nodemailer.createTransport({
-        SES: { ses, aws },
-      });
-
-      // send some mail
-      transporter.sendMail(
-        {
-          from: "lala@123hora.com",
-          to: "alejandro2141@gmail.com",
-          subject: "Message",
-          text: "I hope this message gets sent!",
-          ses: {
-            // optional extra arguments for SendRawEmail
-            Tags: [
-              {
-                Name: "tag_name",
-                Value: "tag_value",
-              },
-            ],
-          },
-        },
-       
-      );
-
-
-      /*
       var nodemailer = require('nodemailer');
 
       var transporter = nodemailer.createTransport({
@@ -127,6 +90,45 @@ const resultado = client.query(sql, (err, result) => {
         })
         */
     
+
+        let nodemailer = require("nodemailer");
+        let aws = require("@aws-sdk/client-ses");
+        let { defaultProvider } = require("@aws-sdk/credential-provider-node");
+        
+        const ses = new aws.SES({
+          apiVersion: "2010-12-01",
+          region: "us-east-1",
+          defaultProvider,
+        });
+        
+        // create Nodemailer SES transporter
+        let transporter = nodemailer.createTransport({
+          SES: { ses, aws },
+        });
+        
+        // send some mail
+        transporter.sendMail(
+          {
+            from: "sender@example.com",
+            to: "recipient@example.com",
+            subject: "Message",
+            text: "I hope this message gets sent!",
+            ses: {
+              // optional extra arguments for SendRawEmail
+              Tags: [
+                {
+                  Name: "tag_name",
+                  Value: "tag_value",
+                },
+              ],
+            },
+          },
+          (err, info) => {
+            console.log(info.envelope);
+            console.log(info.messageId);
+          }
+        );
+
     }
 
 }
