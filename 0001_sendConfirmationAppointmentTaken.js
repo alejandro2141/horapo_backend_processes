@@ -74,7 +74,13 @@ const resultado = client.query(sql, (err, result) => {
 
       // create Nodemailer SES transporter
       let transporter = nodemailer.createTransport({
-        SES: { ses, aws },
+              host: "email-smtp.us-east-2.amazonaws.com",
+              port: 587,
+              secure: false, // true for 465, false for other ports
+              auth: {
+                user: 'AKIAZX6HYCD6TMLDYJK4' , // generated ethereal user
+                pass: '4XYTAIwLLF3tJSktdv1K2JRA8ASu9xgvms0Nk8sO', // generated ethereal password
+              },
       });
 
       // send some mail
