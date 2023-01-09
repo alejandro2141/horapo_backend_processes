@@ -100,8 +100,8 @@ const resultado = client.query(sql, (err, result) => {
           region: "us-east-2",
           defaultProvider,
 
-          accessKeyId: cfg.KEY,
-          secretAccessKey: cfg.SKEY,
+          //accessKeyId: cfg.KEY,
+          //secretAccessKey: cfg.SKEY,
           //accessKeyId : "AKIAZX6HYCD6WJFLIVUF",
           //secretAccessKey : "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",
         });
