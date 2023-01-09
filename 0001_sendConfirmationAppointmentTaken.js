@@ -56,6 +56,7 @@ const resultado = client.query(sql, (err, result) => {
      
     for ( i=0 ; i<= list.length ; i++ )
     {
+      val=list.pop() ;
       /*
       val=list.pop() ;
       console.log("Sending email to :"+ val.patient_email  );
@@ -123,7 +124,7 @@ const resultado = client.query(sql, (err, result) => {
             to: "alejandro2141@gmail.com",
 //            subject: "",
             subject: 'Cita de ESPECIALIDAD ha sido reservada para:'+val.date+', a las:'+val.start_time+'  ',
-            text: 'Gracias por preferirnos '+val.patient_name,
+            text: 'Estimad@ <b>'+val.patient_name+'</b> <br> Su reserva para [ESPECIALIDAD] ha sido registrada el dia:'+val.date+' a las :'+val.start_time+' ha sido generada<br> Recuerde debe confirmar su asistencia 48 horas antes de la cita, de lo contrario su hora sera liberada para otros pacientes',
             ses: {
               // optional extra arguments for SendRawEmail
               /*
