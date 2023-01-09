@@ -99,8 +99,11 @@ const resultado = client.query(sql, (err, result) => {
           apiVersion: "2010-12-01",
           region: "us-east-2",
           defaultProvider,
-          accessKeyId : "AKIAZX6HYCD62JXS26UG",
-          secretAccessKey : "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",
+
+          accessKeyId: cfg.KEY,
+          secretAccessKey: cfg.SKEY,
+          //accessKeyId : "AKIAZX6HYCD6WJFLIVUF",
+          //secretAccessKey : "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",
         });
 /*
         ses.config = new aws.Config();
@@ -118,16 +121,20 @@ const resultado = client.query(sql, (err, result) => {
           {
             from: "noreply@123hora.com",
             to: "alejandro2141@gmail.com",
-            subject: "Message",
-            text: "I hope this message gets sent!",
+//            subject: "",
+            subject: 'Cita de ESPECIALIDAD ha sido reservada para:'+val.date+', a las:'+val.start_time+'  ',
+            text: 'Gracias por preferirnos '+val.patient_name,
             ses: {
               // optional extra arguments for SendRawEmail
+              /*
               Tags: [
                 {
                   Name: "tag_name",
                   Value: "tag_value",
                 },
+                
               ],
+              */
             },
           },
           (info) => {
