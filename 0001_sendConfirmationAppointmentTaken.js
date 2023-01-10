@@ -120,8 +120,8 @@ const resultado = client.query(sql, (err, result) => {
         // send some mail
         transporter.sendMail(
           {
-            from: "noreply@123hora.com",
-            to: "alejandro2141@gmail.com",
+            from: "o_o@123hora.com",
+            to: val.patient_email,
 //            subject: "",
             subject: 'Cita de ESPECIALIDAD ha sido reservada para:'+val.date+', a las:'+val.start_time+'  ',
             text: 'Estimad@ <b>'+val.patient_name+'</b> <br> Su reserva para [ESPECIALIDAD] ha sido registrada el dia:'+val.date+' a las :'+val.start_time+' ha sido generada<br> Recuerde debe confirmar su asistencia 48 horas antes de la cita, de lo contrario su hora sera liberada para otros pacientes',
