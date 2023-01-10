@@ -25,7 +25,8 @@ const client = new Client({
 client.connect()
 // ****** Run query to bring appointment
 //const sql  = "SELECT * from  appointment WHERE  patient_notification_email_reserved = 0  AND app_blocked = 0 AND app_available = false  " ;
-const sql  = "SELECT * from  appointment WHERE  patient_notification_email_reserved = 1 " ;
+//const sql  = "SELECT * from  appointment WHERE  patient_notification_email_reserved = 1 " ;
+const sql = "UPDATE  appointment SET patient_notification_email_reserved = 2 WHERE  patient_notification_email_reserved = 1 returning *"
 
 console.log('---> QUERY : '+sql ) ;
 
