@@ -12,21 +12,11 @@ let conString = {
 
 const client = new Client(conString) ; 
 
-/*
-const client = new Client({
-  user: 'conmeddb_user',
-  host: '127.0.0.1',
-  database: 'conmeddb02',
-  password: 'paranoid',
-  port: 5432,
-    })
-*/
 
 client.connect()
 // ****** Run query to bring appointment
-//const sql  = "SELECT * from  appointment WHERE  patient_notification_email_reserved = 0  AND app_blocked = 0 AND app_available = false  " ;
-//const sql  = "SELECT * from  appointment WHERE  patient_notification_email_reserved = 1 " ;
-const sql = "UPDATE  appointment SET patient_notification_email_reserved = 2 WHERE  patient_notification_email_reserved = 1 returning *"
+//const sql  = "SELECT * from  appointment WHERE  patient_notification_email_reserved = 1" ;
+const sql  = "UPDATE  appointment SET patient_notification_email_reserved = 2 WHERE  patient_notification_email_reserved = 1 returning *" ;
 
 console.log('---> QUERY : '+sql ) ;
 
@@ -52,46 +42,12 @@ const resultado = client.query(sql, (err, result) => {
 
   function appToNotifyReserved(list)
   {
-    console.log("continueToUpdate function. "+JSON.stringify(list));
-    console.log("Total EAMILS to be send : "+list.length );
+    console.log("Total EMAILS to be send : "+list.length );
      
     for ( i=0 ; i<= list.length ; i++ )
     {
       val=list.pop() ;
-      /*
-      val=list.pop() ;
-      console.log("Sending email to :"+ val.patient_email  );
-
-      let message="Estimad@ <b>"+val.patient_name+"</b> <br> Su reserva para [ESPECIALIDAD] ha sido registrada el dia:"+val.date+ " a las :"+val.start_time+" ha sido generada<br> Recuerde debe confirmar su asistencia 48 horas antes de la cita, de lo contrario su hora sera liberada para otros pacientes" ;
-      
-      var nodemailer = require('nodemailer');
-
-      var transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-          user: 'ing.morales@gmail.com',
-          pass: 'cshbjfqevdyceras'
-          }
-      });
-      
-      var mailOptions = {
-          from: 'ing.morales@gmail.com',
-          to: val.patient_email ,
-          subject: 'Cita de ESPECIALIDAD ha sido reservada para:'+val.date+', a las:'+val.start_time+'  ',
-          text: 'Gracias por preferirnos '+val.patient_name ,
-          html: message , 
-      };
-      
-      transporter.sendMail(mailOptions, function(error, info){
-          if (error) {
-          console.log(error);
-          } else {
-          console.log('Email sent: ' + info.response);
-          updateRegisterToNotified(val) ;
-               }
-        })
-        */
-    
+     
 
         let nodemailer = require("nodemailer");
         let aws = require("@aws-sdk/client-ses");
@@ -107,12 +63,7 @@ const resultado = client.query(sql, (err, result) => {
           //accessKeyId : "AKIAZX6HYCD6WJFLIVUF",
           //secretAccessKey : "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",
         });
-/*
-        ses.config = new aws.Config();
-        ses.config.accessKeyId = "AKIAZX6HYCD62JXS26UG";
-        ses.config.secretAccessKey = "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";
-        ses.config.region = "us-east-2";
-        */
+
         // create Nodemailer SES transporter
         let transporter = nodemailer.createTransport({
           SES: { ses, aws },
@@ -120,23 +71,14 @@ const resultado = client.query(sql, (err, result) => {
         
         // send some mail
         transporter.sendMail(
-          {
-            from: "o_o@123hora.com",
-            to: val.patient_email,
+          {            
+            from: "info@123hora.com",
+            to: val.patient_email.toLowerCase()  ,
 //            subject: "",
-            subject: 'Cita de ESPECIALIDAD ha sido reservada para:'+val.date+', a las:'+val.start_time+'  ',
-            text: 'Estimad@ '+val.patient_name+'. Su reserva para [ESPECIALIDAD:'+val.specialty_reserved+'] ha sido registrada el dia:'+val.date+' a las :'+val.start_time+' ha sido generada.  Recuerde debe confirmar su asistencia 48 horas antes de la cita, de lo contrario su hora sera liberada para otros pacientes',
+            subject: 'Cita de ESPECIALIDAD '+val.specialty_reserved+' ha sido reservada para:'+val.date+', a las:'+val.start_time+'  ',
+            text: 'Estimad@ '+val.patient_name+'.  Su reserva para '+val.specialty_reserved+' ha sido registrada el dia:'+val.date+' a las :'+val.start_time+' ha sido generada. Recuerde debe confirmar su asistencia 48 horas antes de la cita, de lo contrario su hora sera liberada para otros pacientes',
             ses: {
               // optional extra arguments for SendRawEmail
-              /*
-              Tags: [
-                {
-                  Name: "tag_name",
-                  Value: "tag_value",
-                },
-                
-              ],
-              */
             },
           },
           (info) => {
@@ -170,74 +112,4 @@ function updateRegisterToNotified(val)
  //*************** */
 }
 
-
-// CLOSE CLIENT
- 
-
-//console.log("LIST="+JSON.stringify(list) ) ;
-
-  /*
-//  console.log('---> Emails Pending to send  : '+JSON.stringify(result.rows) ) ;
-  console.log("START SUMMARY EMAILS");
-  result.rows.forEach( (value)=>console.log("all :"+JSON.stringify(value)) );
-  console.log("END SUMMARY EMAILS");
-
-  //FREACH CYCLE TO SEND NOTIFICATION TO CUSTOMER
-  result.rows.forEach(function(val) {
-  console.log("sending Confirmation Appointment Taken to email:"+val.patient_email);
-    
-  let message="Estimad@ <b>"+val.patient_name+"</b> <br> Su reserva para xxxx  el dia:"+val.date+ " a las :"+val.start_time+" ha sido generada<br> Recuerde debe confirmar su asistencia 48 horas antes de la cita, de lo contrario su hora sera liberada para otros pacientes" ;
-
-            var nodemailer = require('nodemailer');
-
-            var transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                user: 'ing.morales@gmail.com',
-                pass: 'cshbjfqevdyceras'
-                }
-            });
-            
-            var mailOptions = {
-                from: 'ing.morales@gmail.com',
-                to: val.patient_email ,
-                subject: 'Cita de ESPECIALIDAD ha sido reservada para:'+val.date+', a las:'+val.start_time+'  ',
-                text: 'Gracias por preferirnos '+val.patient_name ,
-                html: message , 
-            };
-            
-            transporter.sendMail(mailOptions, function(error, info){
-                if (error) {
-                console.log(error);
-                } else {
-                console.log('Email sent: ' + info.response);
-
-                //Now we should update DB to reflect email sent. 
-                client.connect()
-                const sql  = "UPDATE appointment SET patient_notification_email_reserved = 1  WHERE id=1385 ;" ;
-                console.log('--->UPDATE APP QUERY : '+sql ) ;
-                const resultado = client.query(sql, (err, result) => {
-                  if (err) {
-                      console.log('get_professional_specialty ERR:'+err ) ;
-                    }
-                client.end() ;
-                 
-                //END UPDATE DATABASE                 
-
-
-                }
-            });
-
-      
-
-
-
-
-    })
-
-
- 
-})
-
-*/
 
