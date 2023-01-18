@@ -33,9 +33,6 @@ const resultado = client.query(sql, (err, result) => {
       else {
         //console.log("Empty List, No new Registers");
       }
-
-     
-
     }
     client.end() ;
   })
@@ -60,10 +57,6 @@ const resultado = client.query(sql, (err, result) => {
           region: "us-east-2",
           defaultProvider,
 
-          //accessKeyId: cfg.KEY,
-          //secretAccessKey: cfg.SKEY,
-          //accessKeyId : "AKIAZX6HYCD6WJFLIVUF",
-          //secretAccessKey : "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",
         });
 
         // create Nodemailer SES transporter
@@ -91,27 +84,4 @@ const resultado = client.query(sql, (err, result) => {
     }
 
 }
-
-/*
-function updateRegisterToNotified(val)
-{
- 
- //client.connect()
- 
- let sql_update  = "UPDATE appointment SET patient_notification_email_reserved = 1  WHERE id="+val.id+" ;" ;
- console.log('--->UPDATE APP QUERY : '+sql_update ) ;
-
- const client_update = new Client(conString) ;
- client_update.connect() ;
- const resultado = client_update.query(sql_update, (err, result) => {
-  if (err) {
-      console.log('ERR:'+err ) ;
-    }
-    console.log("updated Result" + result);
-    client_update.end() ;
-  })
-
- 
-}
-*/
 
