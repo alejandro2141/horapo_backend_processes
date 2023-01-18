@@ -1,3 +1,145 @@
+
+const { Pool, Client } = require('pg')
+
+//*** global variables ***/
+let cdate=new Date()
+let conString = {
+  user: 'conmeddb_user',
+  host: '127.0.0.1',
+  database: 'conmeddb02',
+  password: 'paranoid',
+  port: 5432,
+    }
+//************************/
+
+let response = recoverAppointments();
+response.then( v => {  console.log("End Steps  "+JSON.stringify(v))  } )
+
+
+
+
+
+
+//**************************************************/
+//*********      FUNCTIONS           ***************/
+//**************************************************/
+async function  recoverAppointments()
+{
+//Step 1, Get all EMails request Recover appointments taken
+console.log("Step1");
+
+let email_list = await get_emailsRequestRecoverAppointments()
+
+console.log("Step2:"+email_list);
+
+return email_list ;
+
+}
+
+
+async function  get_emailsRequestRecoverAppointments()
+{
+  const client = new Client(conString) ; 
+  client.connect()
+  // ****** Run query to bring appointment
+  //const sql  = "SELECT * from  appointment WHERE  patient_notification_email_reserved = 1" ;
+  const sql  = "DELETE FROM patient_recover_appointments  RETURNING * " ;
+  //console.log('---> QUERY : '+sql ) ;
+  const resultado = client.query(sql, (err, result) => {
+    if (err) {
+        console.log(cdate.toLocaleString()+'::S0002:ERROR:'+err ) ;
+        return null
+      }
+    if (result != null)
+      {
+       
+      //console.log("result in function:"+JSON.stringify(result.rows));
+        if (result.rows.length >0 ){
+         client.end() ;
+         console.log(cdate.toLocaleString()+":S0002: EMAILS recover:"+result.rows.length ) 
+         return (result.rows); 
+        }
+
+        else {
+          console.log(cdate.toLocaleString()+":S0002: EMAILS recover No Emails:") 
+          client.end() ;
+          return null
+          //console.log("Empty List, No new Registers");
+        }
+
+      }
+      
+
+    })
+
+}
+
+
+function sendmail(data)
+  {
+
+    let nodemailer = require("nodemailer");
+        let aws = require("@aws-sdk/client-ses");
+        let { defaultProvider } = require("@aws-sdk/credential-provider-node");
+        
+        const ses = new aws.SES({
+          apiVersion: "2010-12-01",
+          region: "us-east-2",
+          defaultProvider,
+
+        });
+
+        // create Nodemailer SES transporter
+        let transporter = nodemailer.createTransport({
+          SES: { ses, aws },
+        });
+        
+        // send some mail
+        transporter.sendMail(
+          {            
+            from: "123HORA-RECORDATORIO@123hora.com",
+            to: data.patient_email.toLowerCase()  ,
+//            subject: "",
+            subject: 'RECORDATORIO DE CITAS : '+val.email+'   ',
+            text: 'RECORDATORIO DE CITAS : '+val.email+'  ' ,
+            ses: {
+              // optional extra arguments for SendRawEmail
+            },
+          },
+          (info) => {
+            console.log(cdate.toLocaleString()+":S0001:INFO:"+info);
+          }
+        );
+
+
+
+  }
+
+
+function getAppByEmail(email){
+  
+  const client = new Client(conString)
+  client.connect()
+
+  //let sql_query= "SELECT * FROM appointment WHERE patient_email = '"+email+"' AND  date >= '"+todayDate+"'  " ;
+
+  let sql_query= "SELECT * FROM (SELECT * FROM appointment  WHERE patient_email = '"+email+"' )J  LEFT JOIN specialty ON J.specialty = specialty.id";
+
+  // console.log("sql_query:"+sql_query); 
+  client.query(sql_query, (err, res) => {
+    if (err) throw err
+    //console.log(res.rows)
+     client.end()
+     return res.rows
+  }) 
+}
+
+
+
+
+
+/*
+
 const { Client } = require('pg')
 
 let conString = {
@@ -123,63 +265,4 @@ function updateRegisterToNotified(email){
   }) 
 }
 
-
-
-/*
-// 0 - THE START
-getEmailList();
-console.log ("START PROCESS 002");
-
-// 1- GET EMAIL LIST 
-async function getEmailList(){
-  console.log("Obtaining Email List");
-  const client = new Client(conString)
-  client.connect()
-  const res = await client.query('SELECT * FROM patient_recover_appointments ')
-  //console.log(JSON.stringify (res.rows)) 
-  client.end()
-  processEmailList(res.rows);
-  //return(res.rows);
-}
-
-//2 - PROCESS EMAIL LIST  
-async function processEmailList(list){
-    console.log ("Process List ");
-       // console.log("List:" + JSON.stringify(list)) ;
-        console.log("Largo :" + list.length  ) ;
-
-        for (i=0 ; i< list.length ; i++)
-        {
-         console.log("Email : "+list[i].email+" ");
-         getAppByEmail() ;
-        }
-
-}
-
-// 3 - GET APPOINTMENT Email ID
-async function getAppByEmail(){
-  
-  console.log("getAppByEmail:");
- 
-  let getAppQuery = "SELECT * FROM appointment where patient_email = '"+email+"' AND  date >= '"+todayDate+"' " ; 
-  console.log("query: "+getAppQuery);
-  
-  const client = new Client(conString)
-  client.connect()
-  const res1 = await client.query(getAppQuery)
-  console.log(JSON.stringify (res1.rows)) 
-  client.end()
-
-  console.log("Sending email to : "+email);
-  console.log("Appointments : "+JSON.stringify(res1.rows));   
-       sendEmail(email,res1.rows);
-       
-
-}
-
-async function getAppByEmail(email, apps){
-  
-
-}
 */
-
