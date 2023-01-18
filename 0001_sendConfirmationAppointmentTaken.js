@@ -1,6 +1,6 @@
 const { Pool, Client } = require('pg')
 
-console.log("0001 Send email confirmation Appointment Reserved");
+let cdate=new Date()
 
 let conString = {
   user: 'conmeddb_user',
@@ -17,23 +17,25 @@ client.connect()
 // ****** Run query to bring appointment
 //const sql  = "SELECT * from  appointment WHERE  patient_notification_email_reserved = 1" ;
 const sql  = "UPDATE  appointment SET patient_notification_email_reserved = 2 WHERE  patient_notification_email_reserved = 1 returning *" ;
-
-console.log('---> QUERY : '+sql ) ;
-
+//console.log('---> QUERY : '+sql ) ;
 const resultado = client.query(sql, (err, result) => {
   if (err) {
-      console.log('ERR:'+err ) ;
+      console.log(cdate.toLocaleString()+':ERROR:'+err ) ;
     }
   if (result != null)
-    {  
-      console.log("Registers Found:" +result.rows.length );
+    {
+    console.log(cdate.toLocaleString()+":S0001: EMAIL Registers Found:"+result.rows.length )   
+    // console.log("Registers Found:" +result.rows.length );
     //console.log("result in function:"+JSON.stringify(result.rows));
       if (result.rows.length >0 ){
-           appToNotifyReserved(result.rows); }
+           appToNotifyReserved(result.rows); 
+          }
       else {
-        console.log("Empty List, No new Registers");
+        //console.log("Empty List, No new Registers");
       }
-    
+
+     
+
     }
     client.end() ;
   })
@@ -42,7 +44,7 @@ const resultado = client.query(sql, (err, result) => {
 
   function appToNotifyReserved(list)
   {
-    console.log("Total EMAILS to be send : "+list.length );
+    //console.log("Total EMAILS to be send : "+list.length );
      
     for ( i=0 ; i<= list.length ; i++ )
     {
@@ -82,7 +84,7 @@ const resultado = client.query(sql, (err, result) => {
             },
           },
           (info) => {
-            console.log("INFO:"+info);
+            console.log(cdate.toLocaleString()+":S0001:INFO:"+info);
           }
         );
 
@@ -90,10 +92,10 @@ const resultado = client.query(sql, (err, result) => {
 
 }
 
-
+/*
 function updateRegisterToNotified(val)
 {
- //************ */
+ 
  //client.connect()
  
  let sql_update  = "UPDATE appointment SET patient_notification_email_reserved = 1  WHERE id="+val.id+" ;" ;
@@ -109,7 +111,7 @@ function updateRegisterToNotified(val)
     client_update.end() ;
   })
 
- //*************** */
+ 
 }
-
+*/
 
