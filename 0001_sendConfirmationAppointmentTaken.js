@@ -74,7 +74,7 @@ const resultado = client.query(sql, (err, result) => {
         // send some mail
         transporter.sendMail(
           {            
-            from: "info@123hora.com",
+            from: "123HORA@123hora.com",
             to: val.patient_email.toLowerCase()  ,
 //            subject: "",
             subject: 'Cita de ESPECIALIDAD '+val.specialty_reserved+' ha sido reservada para:'+val.date+', a las:'+val.start_time+'  ',
