@@ -1,78 +1,115 @@
 
-const { Pool, Client } = require('pg')
+/*
+async function executeAsyncTask () {
+  console.log("Execute A")
+  const valueA = await functionA();
+  console.log("Execute B")
+  const valueB = await functionB(valueA);
+  console.log("Return")
+  return (valueB);
+}
 
-//*** global variables ***/
+async function functionA()
+{ 
+await sleep(2000);
+console.log("soyA")
+return ("soyA")
+}
+
+async function functionB(val)
+{
+console.log("soyB")
+return (val+" soyB") 
+}
+
+
+const sleep = async (milliseconds) => {
+  await new Promise(resolve => {
+      return setTimeout(resolve, milliseconds)
+  });
+}
+
+
+console.log("START")
+let resultado=executeAsyncTask()
+*/
+
+
+
+const { Pool, Client } = require('pg')
+let email_apps_list = null 
+//global variables 
 let cdate=new Date()
-let conString = {
+let conn_data = {
   user: 'conmeddb_user',
   host: '127.0.0.1',
   database: 'conmeddb02',
   password: 'paranoid',
   port: 5432,
     }
-//************************/
+//************************
 
-let response = recoverAppointments();
-response.then( v => {  console.log("End Steps  "+JSON.stringify(v))  } )
-
+let response = main();
 
 
-
-
-
-//**************************************************/
-//*********      FUNCTIONS           ***************/
-//**************************************************/
-async function  recoverAppointments()
+//************************************************** 
+//*********    MAIN()  ASYNC           *************** 
+//************************************************** 
+async function  main()
 {
 //Step 1, Get all EMails request Recover appointments taken
 console.log("Step1");
 
+//STEP 1 Get emails require recover appointments taken
 let email_list = await get_emailsRequestRecoverAppointments()
+//SETP 2 Get all appointments registered for each email
+for (var i = 0; i < email_list.length; i++) {
 
-console.log("Step2:"+email_list);
+  let apps =  getAppointmentsByEmail(email_list[i])
+  email_apps_list
+
+
+}
+
+
+
 
 return email_list ;
 
 }
 
+//************************************************** 
+//*********    FUNCTIONS             *************** 
+//************************************************** 
 
 async function  get_emailsRequestRecoverAppointments()
 {
-  const client = new Client(conString) ; 
-  client.connect()
-  // ****** Run query to bring appointment
-  //const sql  = "SELECT * from  appointment WHERE  patient_notification_email_reserved = 1" ;
-  const sql  = "DELETE FROM patient_recover_appointments  RETURNING * " ;
-  //console.log('---> QUERY : '+sql ) ;
-  const resultado = client.query(sql, (err, result) => {
-    if (err) {
-        console.log(cdate.toLocaleString()+'::S0002:ERROR:'+err ) ;
-        return null
-      }
-    if (result != null)
-      {
-       
-      //console.log("result in function:"+JSON.stringify(result.rows));
-        if (result.rows.length >0 ){
-         client.end() ;
-         console.log(cdate.toLocaleString()+":S0002: EMAILS recover:"+result.rows.length ) 
-         return (result.rows); 
-        }
+  const { Client } = require('pg')
+  const client = new Client(conn_data)
+  await client.connect()
+ 
+  const sql_calendars  = "SELECT * FROM patient_recover_appointments" ;  
 
-        else {
-          console.log(cdate.toLocaleString()+":S0002: EMAILS recover No Emails:") 
-          client.end() ;
-          return null
-          //console.log("Empty List, No new Registers");
-        }
-
-      }
-      
-
-    })
-
+  //console.log ("QUERY GET CALENDAR = "+sql_calendars);
+  const res = await client.query(sql_calendars) 
+  client.end() 
+  console.log("Return email request")
+  return res.rows ;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function sendmail(data)
@@ -116,14 +153,14 @@ function sendmail(data)
   }
 
 
-function getAppByEmail(email){
+function getAppointmentsByEmail(email){
   
   const client = new Client(conString)
   client.connect()
 
   //let sql_query= "SELECT * FROM appointment WHERE patient_email = '"+email+"' AND  date >= '"+todayDate+"'  " ;
 
-  let sql_query= "SELECT * FROM (SELECT * FROM appointment  WHERE patient_email = '"+email+"' )J  LEFT JOIN specialty ON J.specialty = specialty.id";
+  let sql_query= "SELECT * FROM appointment  WHERE patient_email = '"+email+"' ";
 
   // console.log("sql_query:"+sql_query); 
   client.query(sql_query, (err, res) => {
@@ -137,6 +174,8 @@ function getAppByEmail(email){
 
 
 
+
+//************************OLD CODE **************************** */
 
 /*
 
