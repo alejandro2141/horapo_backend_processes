@@ -1,3 +1,13 @@
+/****************************************************  
+//******  SCRIPT REQUIRE set {home} .aws/credentials 
+// ****************************************************
+
+[default]
+aws_access_key_id = 
+aws_secret_access_key = 
+
+*/
+
 const { Pool, Client } = require('pg')
 
 let cdate=new Date()
