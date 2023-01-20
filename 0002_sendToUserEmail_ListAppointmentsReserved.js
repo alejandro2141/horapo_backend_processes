@@ -4,8 +4,6 @@ let path_html ="/home/alejandro/Documents/GitHub/backend_processes/email_appoint
 let html_template = new String() 
 let specialties = new Array() 
 let locations = new Array() 
-let center_id_list = new Array()
-let centers = new Array()
 
 const { Pool, Client } = require('pg')
 let email_apps_list = new Array() 
@@ -47,28 +45,27 @@ while  (email_list.length > 0) {
         'message' : "<h1>noData</h1>"
       }
   let apps = await getAppointmentsByEmail(aux_email.email) 
-  register.message = await buildHtmlMessage(html_template,apps)
+  
   // SETP 3  : FORMAT LIST Appointments
-  center_id_list = center_id_list.concat( apps.map(val => val.center_id) )
+  let center_id_list = apps.map(val => val.center_id) 
   //remove duplicated
-  center_id_list = [...new Set(center_id_list)];
+  let aux_centers = await getCenters(center_id_list)
   //  center_id_list.indexOf(apps.center_id) === -1 ? center_id_list.push(apps.center_id) : console.log("");
  
   //register.apps = html_data_email 
  
   //push to app list
-   email_apps_list.push(register) 
+  register.message = await buildHtmlMessage(html_template,apps,aux_centers)
+  email_apps_list.push(register) 
   }
 
   //GET CENTERS by  center_id_list TO THEN SEARCH center name and address
-  centers = await getCenters(center_id_list)
-  console.log("CENTERS: "+ JSON.stringify(centers) )
-  console.log("EMAILS SENT: "+ JSON.stringify(email_apps_list) )
+  console.log("EMAILS TO BE SENT:"+JSON.stringify(email_apps_list) )
   // STEP 3   Send emails suing list email_apps_list
   while (email_apps_list.length >0 ) 
   {
     let register = email_apps_list.pop()
-    await sendmail(register)
+    //await sendmail(register)
   }
   
 
@@ -200,12 +197,14 @@ async function readHTMLFile(path) {
   return html_data
 }
 
-async function buildHtmlMessage(html,apps){
-
+async function buildHtmlMessage(html,apps,centers){
+console.log("CENTERS in BUILD HTML:"+JSON.stringify(centers))
   //1st build app list
   apps_html = new String()
+ 
   for (let i = 0; i < apps.length; i++) {
-    apps_html =apps_html +"<tr> <td>"+await showSpecialtyName(apps[i].specialty_reserved)+"</td> <td>"+transform_date(apps[i].date)+"</td> <td>"+transform_time(apps[i].start_time)+"</td>   <td>"+await showCenterAddress(apps[i].center_id)+"</td>    <td>"+apps[i].professional_id+"</td> </tr> ";
+    let center = getCenterData(apps[i].center_id)
+    apps_html =apps_html +"<tr> <td>"+await showSpecialtyName(apps[i].specialty_reserved)+"</td> <td>"+transform_date(apps[i].date)+"</td> <td>"+transform_time(apps[i].start_time)+"</td>   <td>"+center.name+"</td>    <td>"+apps[i].professional_id+"</td> </tr> ";
   }
 
   let aux = await html.replace('[appList]', apps_html)
@@ -219,9 +218,9 @@ async function showSpecialtyName(id){
   else { return null }
 }
 
-async function showCenterAddress(id){
+async function getCenterData(id){
   let temp= await centers.find(elem => elem.id ==  id  )
-  if (temp != null) { return temp.name }
+  if (temp != null) { return temp }
   else { return null }
 }
 
