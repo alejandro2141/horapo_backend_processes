@@ -1,54 +1,15 @@
-/****************************************************  
-//******  SCRIPT REQUIRE set {home} .aws/credentials 
-// ****************************************************
-
-[default]
-aws_access_key_id = 
-aws_secret_access_key = 
-
-*/
 
 
-
-/*
-async function executeAsyncTask () {
-  console.log("Execute A")
-  const valueA = await functionA();
-  console.log("Execute B")
-  const valueB = await functionB(valueA);
-  console.log("Return")
-  return (valueB);
-}
-
-async function functionA()
-{ 
-await sleep(2000);
-console.log("soyA")
-return ("soyA")
-}
-
-async function functionB(val)
-{
-console.log("soyB")
-return (val+" soyB") 
-}
-
-
-const sleep = async (milliseconds) => {
-  await new Promise(resolve => {
-      return setTimeout(resolve, milliseconds)
-  });
-}
-
-
-console.log("START")
-let resultado=executeAsyncTask()
-*/
-
-
+let path_html ="/home/alejandro/Documents/GitHub/backend_processes/email_appointments_recover.html"
+let html_template = new String() 
+let specialties = new Array() 
+let locations = new Array() 
+let center_id_list = new Array()
+let centers = new Array()
 
 const { Pool, Client } = require('pg')
 let email_apps_list = new Array() 
+var fs = require('fs');
 //global variables 
 let cdate=new Date()
 let conn_data = {
@@ -70,6 +31,10 @@ async function  main()
 {
 //Step 1, Get all EMails request Recover appointments taken
 console.log("Step1");
+html_template = await readHTMLFile(path_html)
+specialties = await getSpecialties()
+locations = await getLocations()
+
 
 //  STEP 1 Get emails require recover appointments taken
 let email_list = await get_emailsRequestRecoverAppointments()
@@ -79,22 +44,34 @@ while  (email_list.length > 0) {
   
   let register = { 
         'email' : aux_email.email , 
-        'apps' : new Array()
+        'message' : "<h1>noData</h1>"
       }
-  
-   register.apps = await getAppointmentsByEmail(aux_email.email) 
+  let apps = await getAppointmentsByEmail(aux_email.email) 
+  register.message = await buildHtmlMessage(html_template,apps)
+  // SETP 3  : FORMAT LIST Appointments
+  center_id_list = center_id_list.concat( apps.map(val => val.center_id) )
+  //remove duplicated
+  center_id_list = [...new Set(center_id_list)];
+  //  center_id_list.indexOf(apps.center_id) === -1 ? center_id_list.push(apps.center_id) : console.log("");
+ 
+  //register.apps = html_data_email 
+ 
+  //push to app list
    email_apps_list.push(register) 
   }
 
-console.log("email_apps_list : "+JSON.stringify(email_apps_list))
-//return email_apps_list ;
-
-//   STEP 3   Send emails
+  //GET CENTERS by  center_id_list TO THEN SEARCH center name and address
+  centers = await getCenters(center_id_list)
+  console.log("CENTERS: "+ JSON.stringify(centers) )
+  console.log("EMAILS SENT: "+ JSON.stringify(email_apps_list) )
+  // STEP 3   Send emails suing list email_apps_list
   while (email_apps_list.length >0 ) 
   {
     let register = email_apps_list.pop()
     await sendmail(register)
   }
+  
+
 
 
 }
@@ -102,7 +79,7 @@ console.log("email_apps_list : "+JSON.stringify(email_apps_list))
 //************************************************** 
 //*********    FUNCTIONS             *************** 
 //************************************************** 
-
+// GET DATA FORM DB
 async function  get_emailsRequestRecoverAppointments()
 {
   const { Client } = require('pg')
@@ -132,6 +109,49 @@ async function getAppointmentsByEmail(email){
   return res.rows ; 
 }
 
+async function getSpecialties(){
+  const { Client } = require('pg')
+  const client = new Client(conn_data)
+  await client.connect()
+ 
+  const sql_calendars  = "SELECT * FROM specialty " ;  
+
+  //console.log ("QUERY GET CALENDAR = "+sql_calendars);
+  const res = await client.query(sql_calendars) 
+  client.end() 
+  //console.log("Apps from :"+email)
+  return res.rows ; 
+}
+
+async function getLocations(){
+  const { Client } = require('pg')
+  const client = new Client(conn_data)
+  await client.connect()
+  const sql_calendars  = "SELECT * FROM comuna " ;  
+  const res = await client.query(sql_calendars) 
+  client.end() 
+  return res.rows ; 
+}
+
+async function getCenters(ids){
+  const { Client } = require('pg')
+  const client = new Client(conn_data)
+  await client.connect()
+  const sql_centers  = "SELECT * FROM center WHERE id IN ("+ids+") " ;  
+  
+  console.log("CENTERS IDS:"+sql_centers);
+  const res = await client.query(sql_centers) 
+  console.log("CENTERS :"+JSON.stringify(res.rows) );
+  client.end() 
+  return res.rows ; 
+  
+}
+
+
+// END GET DATA FORM DB
+
+
+
 async function sendmail(data)
   {
 
@@ -143,7 +163,6 @@ async function sendmail(data)
           apiVersion: "2010-12-01",
           region: "us-east-2",
           defaultProvider,
-
         });
 
         // create Nodemailer SES transporter
@@ -151,14 +170,19 @@ async function sendmail(data)
           SES: { ses, aws },
         });
         
+        console.log(" Sending Email data :"+JSON.stringify(data))
+
+        
         // send some mail
+        
         transporter.sendMail(
           {            
             from: "RECORDATORIO-HORAS@123hora.com",
             to: data.email.toLowerCase()  ,
 //            subject: "",
             subject: 'RECORDATORIO DE CITAS',
-            text: 'RECORDATORIO DE CITAS : '+JSON.stringify(data.apps)+'  ' ,
+            html: data.message ,
+            
             ses: {
               // optional extra arguments for SendRawEmail
             },
@@ -167,142 +191,73 @@ async function sendmail(data)
             console.log(cdate.toLocaleString()+":S0001:INFO:"+info);
           }
         );
-
-  }
-
-
-
-
-
-
-
-//************************OLD CODE **************************** */
-
-/*
-
-const { Client } = require('pg')
-
-let conString = {
-  user: 'conmeddb_user',
-  host: '127.0.0.1',
-  database: 'conmeddb02',
-  password: 'paranoid',
-  port: 5432,
-    }
-
-
-    const date = new Date();
-    const day = date.getDate();
-    const month = date.getMonth() + 1; 
-    const year = date.getFullYear();
-    const todayDate = year+"-"+month+"-"+day;
-
-let elist= null ; 
-
-//STEP  1 GET THE EMAIL LIST
-    const client = new Client(conString)
-    client.connect()
-    client.query('SELECT * FROM patient_recover_appointments', (err, res) => {
-      if (err) throw err
-      console.log(res.rows)
-      processEmailList(res.rows);
-      //elist = res.rows
-      client.end()
-    })
-
-//STEP 2 PROCESS LIST
-function processEmailList(list){
-         console.log("EMAILS TOTAL TO PROCESS :" + list.length  ) ;
-         for (i=0 ; i< list.length ; i++)
-          {
-          // console.log("Email : "+list[i].email+" ");
-           getAppByEmail(list[i].email) ;
-          }
-  
-  }
-//STEP 3 GET APPS BY EMAIL. 
-function getAppByEmail(email){
-  
-      const client = new Client(conString)
-      client.connect()
-
-      //let sql_query= "SELECT * FROM appointment WHERE patient_email = '"+email+"' AND  date >= '"+todayDate+"'  " ;
-    
-      let sql_query= "SELECT * FROM (SELECT * FROM appointment  WHERE patient_email = '"+email+"' AND  date >= '"+todayDate+"' )J  LEFT JOIN specialty ON J.specialty = specialty.id";
-    
-      // console.log("sql_query:"+sql_query); 
-      client.query(sql_query, (err, res) => {
-        if (err) throw err
-        //console.log(res.rows)
-        sendEmail(email,res.rows);
-        client.end()
-      }) 
-  }
-
-//STEP 4 SEND EMAIL TO USER. 
-function sendEmail(email,appointments){
-    console.log(" sending email to:"+email );  
-    let message="Estimad@ Cliente <br> Sus reservas registradas con el correo :"+email+"<br> " ;
-
-    if (appointments.length>0)
-    {
-          //concat APPOINTMENTS
-          for (i=0; i<appointments.length ; i++ )
-          {
-            val=appointments.pop() ;  
-            message = message + " Su reserva para "+val.name+" ha sido registrada el dia:"+val.date+ " a las :"+val.start_time+"  " ;
-          }
-    }
-    else
-    {
-      message = message + " No existen reservas en nuestros registros " ;
-    }
-
-    message = message + " Recuerde reservar sus citas 48 horas antes" ;
-  
-    //START SENDMAIL 
-  
-        var nodemailer = require('nodemailer');
-        var transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-            user: 'ing.morales@gmail.com',
-            pass: 'cshbjfqevdyceras'
-            }
-        });
         
-        var mailOptions = {
-            from: 'ing.morales@gmail.com',
-            to: email ,
-            subject: '123HORA Resumen de sus citas reservadas:',
-            text: 'Gracias por preferirnos ' ,
-            html: message , 
-        };
-        
-        transporter.sendMail(mailOptions, function(error, info){
-            if (error) {
-            //console.log(error);
-            console.log('Email: '+email+' Result ERROR :' + error);
-            } else {
-            console.log('Email: '+email+' Result:' + info.response);
-            updateRegisterToNotified(email) ;
-                 }
-          })
-      //END SEND MAIL 
+
+  }
+
+async function readHTMLFile(path) {
+  const html_data = await fs.readFileSync(path,{encoding:'utf8', flag:'r'});
+  return html_data
 }
 
-//STEP 5 GET APPS BY EMAIL. 
-function updateRegisterToNotified(email){
-  
-  const client = new Client(conString)
-  client.connect()
-  let sql_query= "DELETE FROM patient_recover_appointments WHERE email = '"+email+"' ";
-  // console.log("sql_query:"+sql_query); 
-  client.query(sql_query, (err, res) => {
-    if (err) throw err
-    //console.log(res.rows)
-    client.end()
-  }) 
+async function buildHtmlMessage(html,apps){
+
+  //1st build app list
+  apps_html = new String()
+  for (let i = 0; i < apps.length; i++) {
+    apps_html =apps_html +"<tr> <td>"+await showSpecialtyName(apps[i].specialty_reserved)+"</td> <td>"+transform_date(apps[i].date)+"</td> <td>"+transform_time(apps[i].start_time)+"</td>   <td>"+await showCenterAddress(apps[i].center_id)+"</td>    <td>"+apps[i].professional_id+"</td> </tr> ";
+  }
+
+  let aux = await html.replace('[appList]', apps_html)
+
+  return aux
 }
 
-*/
+async function showSpecialtyName(id){
+  let temp= await specialties.find(elem => elem.id ==  id  )
+  if (temp != null) { return temp.name }
+  else { return null }
+}
+
+async function showCenterAddress(id){
+  let temp= await centers.find(elem => elem.id ==  id  )
+  if (temp != null) { return temp.name }
+  else { return null }
+}
+
+
+
+async function comuna_id2name(id)
+{
+  let temp= await locations.find(elem => elem.id ==  id  )
+  if (temp != null) { return temp.name }
+  else { return null }
+}
+
+
+function transform_date(date)
+{
+//let temp = date.split("-") ;
+let temp = new Date(date);
+return ( temp.getDate()+" "+getMonthName(temp.getMonth()+1)+" "+temp.getFullYear() )
+}
+
+function transform_time(time)
+{
+let tim = new Date(time) ;
+return (""+new String(tim.getHours()).padStart(2,0)+":"+new String(tim.getMinutes()).padStart(2,0) )
+}
+
+function getMonthName(month)
+{
+    console.log("MONTH:"+parseInt(month));
+    let months = ['nodata','Enero','Febrero' ,'Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre' ]
+    return months[parseInt(month)];
+}
+
+
+
+
+
+
+
