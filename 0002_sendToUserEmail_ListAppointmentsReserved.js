@@ -37,7 +37,7 @@ let resultado=executeAsyncTask()
 
 
 const { Pool, Client } = require('pg')
-let email_apps_list = null 
+let email_apps_list = new Array() 
 //global variables 
 let cdate=new Date()
 let conn_data = {
@@ -60,21 +60,31 @@ async function  main()
 //Step 1, Get all EMails request Recover appointments taken
 console.log("Step1");
 
-//STEP 1 Get emails require recover appointments taken
+//  STEP 1 Get emails require recover appointments taken
 let email_list = await get_emailsRequestRecoverAppointments()
-//SETP 2 Get all appointments registered for each email
-for (var i = 0; i < email_list.length; i++) {
+//  STEP 2 Get all appointments registered for each email
+while  (email_list.length > 0) {
+  let aux_email= email_list.pop()
+  
+  let register = { 
+        'email' : aux_email.email , 
+        'apps' : new Array()
+      }
+  
+   register.apps = await getAppointmentsByEmail(aux_email.email) 
+   email_apps_list.push(register) 
+  }
 
-  let apps =  getAppointmentsByEmail(email_list[i])
-  email_apps_list
+console.log("email_apps_list : "+JSON.stringify(email_apps_list))
+//return email_apps_list ;
 
+//   STEP 3   Send emails
+  while (email_apps_list.length >0 ) 
+  {
+    let register = email_apps_list.pop()
+    await sendmail(register)
+  }
 
-}
-
-
-
-
-return email_list ;
 
 }
 
@@ -88,7 +98,7 @@ async function  get_emailsRequestRecoverAppointments()
   const client = new Client(conn_data)
   await client.connect()
  
-  const sql_calendars  = "SELECT * FROM patient_recover_appointments" ;  
+  const sql_calendars  = "SELECT email FROM patient_recover_appointments" ;  
 
   //console.log ("QUERY GET CALENDAR = "+sql_calendars);
   const res = await client.query(sql_calendars) 
@@ -97,22 +107,21 @@ async function  get_emailsRequestRecoverAppointments()
   return res.rows ;
 }
 
+async function getAppointmentsByEmail(email){
+  const { Client } = require('pg')
+  const client = new Client(conn_data)
+  await client.connect()
+ 
+  const sql_calendars  = "SELECT * FROM appointment WHERE upper(patient_email)= upper('"+email+"') " ;  
 
+  //console.log ("QUERY GET CALENDAR = "+sql_calendars);
+  const res = await client.query(sql_calendars) 
+  client.end() 
+  //console.log("Apps from :"+email)
+  return res.rows ; 
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-function sendmail(data)
+async function sendmail(data)
   {
 
     let nodemailer = require("nodemailer");
@@ -134,11 +143,11 @@ function sendmail(data)
         // send some mail
         transporter.sendMail(
           {            
-            from: "123HORA-RECORDATORIO@123hora.com",
-            to: data.patient_email.toLowerCase()  ,
+            from: "RECORDATORIO-HORAS@123hora.com",
+            to: data.email.toLowerCase()  ,
 //            subject: "",
-            subject: 'RECORDATORIO DE CITAS : '+val.email+'   ',
-            text: 'RECORDATORIO DE CITAS : '+val.email+'  ' ,
+            subject: 'RECORDATORIO DE CITAS',
+            text: 'RECORDATORIO DE CITAS : '+JSON.stringify(data.apps)+'  ' ,
             ses: {
               // optional extra arguments for SendRawEmail
             },
@@ -148,28 +157,9 @@ function sendmail(data)
           }
         );
 
-
-
   }
 
 
-function getAppointmentsByEmail(email){
-  
-  const client = new Client(conString)
-  client.connect()
-
-  //let sql_query= "SELECT * FROM appointment WHERE patient_email = '"+email+"' AND  date >= '"+todayDate+"'  " ;
-
-  let sql_query= "SELECT * FROM appointment  WHERE patient_email = '"+email+"' ";
-
-  // console.log("sql_query:"+sql_query); 
-  client.query(sql_query, (err, res) => {
-    if (err) throw err
-    //console.log(res.rows)
-     client.end()
-     return res.rows
-  }) 
-}
 
 
 
