@@ -5,9 +5,9 @@
 [default]
 aws_access_key_id = 
 aws_secret_access_key = 
-
 */
 
+let environment = "https://devel.123hora.com/"
 let path_html ="/home/alejandro/Documents/GitHub/backend_processes/email_appointments_recover.html"
 let html_template = new String() 
 let specialties = new Array() 
@@ -57,6 +57,7 @@ while  (email_list.length > 0) {
   // SETP 3  : FORMAT LIST Appointments
   //GET CENTERS
   let center_id_list = apps.map(val => val.center_id) 
+  //remove duplicated
   let aux_centers = await getCenters(center_id_list)
   //GET PROCESSIONAL
   let professional_id_list = apps.map(val => val.professional_id) 
@@ -76,7 +77,7 @@ while  (email_list.length > 0) {
   while (email_apps_list.length >0 ) 
   {
     let register = email_apps_list.pop()
-   // await sendmail(register)
+    await sendmail(register)
   }
   
 
@@ -199,7 +200,7 @@ async function sendmail(data)
         
         transporter.sendMail(
           {            
-            from: "RECORDATORIO-HORAS@123hora.com",
+            from: "RECORDATORIO_HORAS@123hora.com",
             to: data.email.toLowerCase()  ,
 //            subject: "",
             subject: 'RECORDATORIO DE CITAS',
@@ -230,7 +231,8 @@ console.log("CENTERS in BUILD HTML:"+JSON.stringify(centers))
   for (let i = 0; i < apps.length; i++) {
     let center =await centers.find(elem => elem.id ==  apps[i].center_id  )
     let professional =await professionals.find(elem => elem.id ==  apps[i].professional_id  )
-    apps_html =apps_html +"<tr><td>"+await showSpecialtyName(apps[i].specialty_reserved)+"</td><td>"+transform_date(apps[i].date)+"</td><td>"+transform_time(apps[i].start_time)+"</td><td>"+center.address+"</td><td>"+professional.name+"</td></tr> ";
+    //apps_html =apps_html +"<tr><td style='font-size: 1.5em; color: #008080;' > <br> "+await showSpecialtyName(apps[i].specialty_reserved)+"</td><td>"+transform_date(apps[i].date)+"</td><td>"+transform_time(apps[i].start_time)+"</td><td>"+professional.name+"</td><td style='font-size: 1.0em; color: #333;'>"+center.address+"</td></tr> ";
+    apps_html =apps_html +"<br><hr><div><div><div><text style='font-size: 1.5em; color: #008080; padding: 0.0em;'>"+await showSpecialtyName(apps[i].specialty_reserved)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' >"+transform_date(apps[i].date)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' >"+transform_time(apps[i].start_time)+"</text></div></div><div><div>"+professional.name+"</div><div style='font-size: 1.0em; color: #333;'>"+center.address+"</div></div></div> <p><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none;  background-color: #7e0000;'   HREF='"+environment+"/nested/confirmAppointment?date=112233&id="+apps[i].id+"&center_id="+apps[i].center_id+"&patient_doc_id="+apps[i].patient_doc_id+"&act=ca'>Cancelar</a><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none; background-color: #4f7900;'   HREF='"+environment+"/nested/confirmAppointment?date=112233&id="+apps[i].id+"&center_id="+apps[i].center_id+"&patient_doc_id="+apps[i].patient_doc_id+"&act=co'>Confirmar</a></p>" 
   }
 
   let aux = await html.replace('[appList]', apps_html)
