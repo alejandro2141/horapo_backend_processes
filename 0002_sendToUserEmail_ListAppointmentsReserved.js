@@ -1,4 +1,12 @@
+/****************************************************  
+//******  SCRIPT REQUIRE set {home} .aws/credentials 
+// ****************************************************
 
+[default]
+aws_access_key_id = 
+aws_secret_access_key = 
+
+*/
 
 let path_html ="/home/alejandro/Documents/GitHub/backend_processes/email_appointments_recover.html"
 let html_template = new String() 
@@ -47,15 +55,18 @@ while  (email_list.length > 0) {
   let apps = await getAppointmentsByEmail(aux_email.email) 
   
   // SETP 3  : FORMAT LIST Appointments
+  //GET CENTERS
   let center_id_list = apps.map(val => val.center_id) 
-  //remove duplicated
   let aux_centers = await getCenters(center_id_list)
+  //GET PROCESSIONAL
+  let professional_id_list = apps.map(val => val.professional_id) 
+  let aux_professinals = await getProfessionals(professional_id_list)
   //  center_id_list.indexOf(apps.center_id) === -1 ? center_id_list.push(apps.center_id) : console.log("");
  
   //register.apps = html_data_email 
  
   //push to app list
-  register.message = await buildHtmlMessage(html_template,apps,aux_centers)
+  register.message = await buildHtmlMessage(html_template,apps,aux_centers,aux_professinals)
   email_apps_list.push(register) 
   }
 
@@ -65,7 +76,7 @@ while  (email_list.length > 0) {
   while (email_apps_list.length >0 ) 
   {
     let register = email_apps_list.pop()
-    //await sendmail(register)
+   // await sendmail(register)
   }
   
 
@@ -144,6 +155,20 @@ async function getCenters(ids){
   
 }
 
+async function getProfessionals(ids){
+  const { Client } = require('pg')
+  const client = new Client(conn_data)
+  await client.connect()
+  const sql_centers  = "SELECT * FROM professional WHERE id IN ("+ids+") " ;  
+  
+  const res = await client.query(sql_centers) 
+  client.end() 
+  return res.rows ; 
+  
+}
+
+
+
 
 // END GET DATA FORM DB
 
@@ -197,14 +222,15 @@ async function readHTMLFile(path) {
   return html_data
 }
 
-async function buildHtmlMessage(html,apps,centers){
+async function buildHtmlMessage(html,apps,centers,professionals){
 console.log("CENTERS in BUILD HTML:"+JSON.stringify(centers))
   //1st build app list
   apps_html = new String()
  
   for (let i = 0; i < apps.length; i++) {
-    let center = getCenterData(apps[i].center_id)
-    apps_html =apps_html +"<tr> <td>"+await showSpecialtyName(apps[i].specialty_reserved)+"</td> <td>"+transform_date(apps[i].date)+"</td> <td>"+transform_time(apps[i].start_time)+"</td>   <td>"+center.name+"</td>    <td>"+apps[i].professional_id+"</td> </tr> ";
+    let center =await centers.find(elem => elem.id ==  apps[i].center_id  )
+    let professional =await professionals.find(elem => elem.id ==  apps[i].professional_id  )
+    apps_html =apps_html +"<tr><td>"+await showSpecialtyName(apps[i].specialty_reserved)+"</td><td>"+transform_date(apps[i].date)+"</td><td>"+transform_time(apps[i].start_time)+"</td><td>"+center.address+"</td><td>"+professional.name+"</td></tr> ";
   }
 
   let aux = await html.replace('[appList]', apps_html)
