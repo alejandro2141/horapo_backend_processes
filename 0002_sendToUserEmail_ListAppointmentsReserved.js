@@ -7,11 +7,13 @@ aws_access_key_id =
 aws_secret_access_key = 
 */
 
-let environment = "https://devel.123hora.com/"
+let environment = "http://localhost:3000"
 let path_html ="/home/alejandro/Documents/GitHub/backend_processes/email_appointments_recover.html"
 let html_template = new String() 
 let specialties = new Array() 
 let locations = new Array() 
+let today = new Date()
+today.setHours(0,0,0,0)
 
 const { Pool, Client } = require('pg')
 let email_apps_list = new Array() 
@@ -109,9 +111,9 @@ async function getAppointmentsByEmail(email){
   const client = new Client(conn_data)
   await client.connect()
  
-  const sql_calendars  = "SELECT * FROM appointment WHERE upper(patient_email)= upper('"+email+"') " ;  
+  const sql_calendars  = "SELECT * FROM appointment WHERE upper(patient_email)= upper('"+email+"') AND date > '"+today.toISOString()+"' ";  
 
-  //console.log ("QUERY GET CALENDAR = "+sql_calendars);
+  console.log ("QUERY GET CALENDAR = "+sql_calendars);
   const res = await client.query(sql_calendars) 
   client.end() 
   //console.log("Apps from :"+email)
@@ -200,7 +202,7 @@ async function sendmail(data)
         
         transporter.sendMail(
           {            
-            from: "RECORDATORIO_HORAS@123hora.com",
+            from: "RECORDATORIO4@123hora.com",
             to: data.email.toLowerCase()  ,
 //            subject: "",
             subject: 'RECORDATORIO DE CITAS',
@@ -232,7 +234,7 @@ console.log("CENTERS in BUILD HTML:"+JSON.stringify(centers))
     let center =await centers.find(elem => elem.id ==  apps[i].center_id  )
     let professional =await professionals.find(elem => elem.id ==  apps[i].professional_id  )
     //apps_html =apps_html +"<tr><td style='font-size: 1.5em; color: #008080;' > <br> "+await showSpecialtyName(apps[i].specialty_reserved)+"</td><td>"+transform_date(apps[i].date)+"</td><td>"+transform_time(apps[i].start_time)+"</td><td>"+professional.name+"</td><td style='font-size: 1.0em; color: #333;'>"+center.address+"</td></tr> ";
-    apps_html =apps_html +"<br><hr><div><div><div><text style='font-size: 1.5em; color: #008080; padding: 0.0em;'>"+await showSpecialtyName(apps[i].specialty_reserved)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' >"+transform_date(apps[i].date)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' >"+transform_time(apps[i].start_time)+"</text></div></div><div><div>"+professional.name+"</div><div style='font-size: 1.0em; color: #333;'>"+center.address+"</div></div></div> <p><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none;  background-color: #7e0000;'   HREF='"+environment+"/nested/confirmAppointment?date=112233&id="+apps[i].id+"&center_id="+apps[i].center_id+"&patient_doc_id="+apps[i].patient_doc_id+"&act=ca'>Cancelar</a><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none; background-color: #4f7900;'   HREF='"+environment+"/nested/confirmAppointment?date=112233&id="+apps[i].id+"&center_id="+apps[i].center_id+"&patient_doc_id="+apps[i].patient_doc_id+"&act=co'>Confirmar</a></p>" 
+    apps_html =apps_html +"<br><hr><div><div><div><text style='font-size: 1.5em; color: #008080; padding: 0.0em;'>"+await showSpecialtyName(apps[i].specialty_reserved)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' >"+transform_date(apps[i].date)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' >"+transform_time(apps[i].start_time)+"</text></div></div><div><div>"+professional.name+"</div><div style='font-size: 1.0em; color: #333;'>"+center.address+"</div></div></div> <p><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none;  background-color: #7e0000;'   HREF='"+environment+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_ca'>Cancelar</a><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none; background-color: #4f7900;'   HREF='"+environment+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_co'>Confirmar</a></p>" 
   }
 
   let aux = await html.replace('[appList]', apps_html)
