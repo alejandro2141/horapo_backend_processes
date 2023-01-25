@@ -38,49 +38,68 @@ let response = main();
 async function  main()
 {
 //Step 1, Get all EMails request Recover appointments taken
-console.log("Step1");
+
 html_template = await readHTMLFile(path_html)
 specialties = await getSpecialties()
 locations = await getLocations()
 
-
 //  STEP 1 Get emails require recover appointments taken
 let email_list = await get_emailsRequestRecoverAppointments()
-//  STEP 2 Get all appointments registered for each email
-while  (email_list.length > 0) {
-  let aux_email= email_list.pop()
-  
-  let register = { 
-        'email' : aux_email.email , 
-        'message' : "<h1>noData</h1>"
-      }
-  let apps = await getAppointmentsByEmail(aux_email.email) 
-  
-  // SETP 3  : FORMAT LIST Appointments
-  //GET CENTERS
-  let center_id_list = apps.map(val => val.center_id) 
-  //remove duplicated
-  let aux_centers = await getCenters(center_id_list)
-  //GET PROCESSIONAL
-  let professional_id_list = apps.map(val => val.professional_id) 
-  let aux_professinals = await getProfessionals(professional_id_list)
-  //  center_id_list.indexOf(apps.center_id) === -1 ? center_id_list.push(apps.center_id) : console.log("");
- 
-  //register.apps = html_data_email 
- 
-  //push to app list
-  register.message = await buildHtmlMessage(html_template,apps,aux_centers,aux_professinals)
-  email_apps_list.push(register) 
-  }
+console.log (cdate.toLocaleString()+":S0002:INFO:EMAILS RECOVER Appointments:"+JSON.stringify(email_list) )
+if (email_list != null && email_list.length > 0 )
+{
 
-  //GET CENTERS by  center_id_list TO THEN SEARCH center name and address
-  console.log("EMAILS TO BE SENT:"+JSON.stringify(email_apps_list) )
-  // STEP 3   Send emails suing list email_apps_list
-  while (email_apps_list.length >0 ) 
-  {
-    let register = email_apps_list.pop()
-    await sendmail(register)
-  }
+    // WHILE  STEP 2 Get all appointments registered for each email
+      while  (email_list.length > 0) {
+      let aux_email= email_list.pop()
+      
+      let register = { 
+            'email' : aux_email.email , 
+            'message' : "<h1>noData</h1>"
+          }
+      let apps = await getAppointmentsByEmail(aux_email.email) 
+        
+        if (apps != null && apps.length > 0 )
+        {
+          // SETP 3  : FORMAT LIST Appointments
+            //GET CENTERS
+            let center_id_list = apps.map(val => val.center_id) 
+            //remove duplicated
+            let aux_centers = await getCenters(center_id_list)
+            //GET PROCESSIONAL
+            let professional_id_list = apps.map(val => val.professional_id) 
+            let aux_professinals = await getProfessionals(professional_id_list)
+            //  center_id_list.indexOf(apps.center_id) === -1 ? center_id_list.push(apps.center_id) : console.log("");
+          
+            //register.apps = html_data_email 
+          
+            //push to app list
+            register.message = await buildHtmlMessage(html_template,apps,aux_centers,aux_professinals)
+            email_apps_list.push(register) 
+        }
+        else 
+        {
+          let register = { 
+            'email' : aux_email.email , 
+            'message' : "<h1> [No Existen Citas Agendadas] </h1>"
+          }
+          email_apps_list.push(register) 
+
+        }
+      
+      }
+    //END WHILE
+
+      //GET CENTERS by  center_id_list TO THEN SEARCH center name and address
+      //console.log("EMAILS TO BE SENT:"+JSON.stringify(email_apps_list) )
+      // STEP 3   Send emails suing list email_apps_list
+      while (email_apps_list.length >0 ) 
+      {
+        let register = email_apps_list.pop()
+         await sendmail(register)
+      }
+
+}// end if eamil_list 
   
 
 
@@ -97,27 +116,34 @@ async function  get_emailsRequestRecoverAppointments()
   const client = new Client(conn_data)
   await client.connect()
  
-  const sql_calendars  = "SELECT email FROM patient_recover_appointments" ;  
+  const sql_calendars  = "DELETE FROM patient_recover_appointments RETURNING * " ;  
 
   //console.log ("QUERY GET CALENDAR = "+sql_calendars);
   const res = await client.query(sql_calendars) 
   client.end() 
-  console.log("Return email request")
   return res.rows ;
 }
 
 async function getAppointmentsByEmail(email){
+ if (email != null  )
+ {
   const { Client } = require('pg')
   const client = new Client(conn_data)
   await client.connect()
- 
+  
   const sql_calendars  = "SELECT * FROM appointment WHERE upper(patient_email)= upper('"+email+"') AND date > '"+today.toISOString()+"' ";  
 
-  console.log ("QUERY GET CALENDAR = "+sql_calendars);
+  //console.log ("QUERY GET CALENDAR = "+sql_calendars);
   const res = await client.query(sql_calendars) 
   client.end() 
   //console.log("Apps from :"+email)
   return res.rows ; 
+ }
+ else
+ {
+  return null
+ }
+
 }
 
 async function getSpecialties(){
@@ -145,16 +171,24 @@ async function getLocations(){
 }
 
 async function getCenters(ids){
+  if (ids !=null  && ids.length > 0 )
+  {
   const { Client } = require('pg')
   const client = new Client(conn_data)
   await client.connect()
+  
   const sql_centers  = "SELECT * FROM center WHERE id IN ("+ids+") " ;  
   
-  console.log("CENTERS IDS:"+sql_centers);
+  //console.log("CENTERS IDS:"+sql_centers);
   const res = await client.query(sql_centers) 
-  console.log("CENTERS :"+JSON.stringify(res.rows) );
+  //console.log("CENTERS :"+JSON.stringify(res.rows) );
   client.end() 
-  return res.rows ; 
+  return res.rows ;
+  }
+  else 
+  {
+    return null 
+  } 
   
 }
 
@@ -195,14 +229,14 @@ async function sendmail(data)
           SES: { ses, aws },
         });
         
-        console.log(" Sending Email data :"+JSON.stringify(data))
+       // console.log(" Sending Email data :"+JSON.stringify(data))
 
         
         // send some mail
-        
+       console.log(cdate.toLocaleString()+":S0002:INFO:EMAILS to send:"+data.email.toLowerCase() )
         transporter.sendMail(
           {            
-            from: "RECORDATORIO4@123hora.com",
+            from: "RECORDATORI0@123hora.com",
             to: data.email.toLowerCase()  ,
 //            subject: "",
             subject: 'RECORDATORIO DE CITAS',
@@ -213,10 +247,10 @@ async function sendmail(data)
             },
           },
           (info) => {
-            console.log(cdate.toLocaleString()+":S0001:INFO:"+info);
+            console.log(cdate.toLocaleString()+":S0002:INFO:"+info);
           }
         );
-        
+   
 
   }
 
@@ -226,7 +260,7 @@ async function readHTMLFile(path) {
 }
 
 async function buildHtmlMessage(html,apps,centers,professionals){
-console.log("CENTERS in BUILD HTML:"+JSON.stringify(centers))
+//console.log("CENTERS in BUILD HTML:"+JSON.stringify(centers))
   //1st build app list
   apps_html = new String()
  
@@ -279,7 +313,7 @@ return (""+new String(tim.getHours()).padStart(2,0)+":"+new String(tim.getMinute
 
 function getMonthName(month)
 {
-    console.log("MONTH:"+parseInt(month));
+    //console.log("MONTH:"+parseInt(month));
     let months = ['nodata','Enero','Febrero' ,'Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre' ]
     return months[parseInt(month)];
 }
