@@ -1,14 +1,14 @@
 
-    //BKND_HOST : "HTTP://ec2-3-143-168-51.us-east-2.compute.amazonaws.com:8080",
+    //BKND_HOST = "HTTP://ec2-3-143-168-51.us-east-2.compute.amazonaws.com:8080",
     
-    //BKND_HOST : "http://devel.123hora.com:8080",
-    //BKND_HOST : "http://test.123hora.com:8080",
-    //BKND_HOST : "http://www.123hora.com:8080",
+    //BKND_HOST = "http://devel.123hora.com:8080",
+    //BKND_HOST = "http://test.123hora.com:8080",
+    //BKND_HOST = "http://www.123hora.com:8080",
     BKND_HOST = "http://localhost:8080",
     
-    //FRONT_HOST : "http://devel.123hora.com:8080",
-    //FRONT_HOST : "http://test.123hora.com:8080",
-    //FRONT_HOST : "http://www.123hora.com:8080",
+    //FRONT_HOST = "http://devel.123hora.com:8080",
+    //FRONT_HOST = "http://test.123hora.com:8080",
+    //FRONT_HOST = "http://www.123hora.com:8080",
     FRONT_HOST = "http://localhost",
 
     BKND_TIME = 1000,
