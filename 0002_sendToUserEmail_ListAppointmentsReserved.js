@@ -7,8 +7,10 @@ aws_access_key_id =
 aws_secret_access_key = 
 */
 
-let environment = "http://localhost:3000"
-let path_html ="/home/alejandro/Documents/GitHub/backend_processes/email_appointments_recover.html"
+require(__dirname+'/config123_backend_process');
+
+//let environment = "http://localhost:3000"
+//let template ="./email_appointments_recover.html"
 let html_template = new String() 
 let specialties = new Array() 
 let locations = new Array() 
@@ -39,7 +41,7 @@ async function  main()
 {
 //Step 1, Get all EMails request Recover appointments taken
 
-html_template = await readHTMLFile(path_html)
+html_template = await readHTMLFile(__dirname+"/email_appointments_recover.html")
 specialties = await getSpecialties()
 locations = await getLocations()
 
@@ -268,7 +270,7 @@ async function buildHtmlMessage(html,apps,centers,professionals){
     let center =await centers.find(elem => elem.id ==  apps[i].center_id  )
     let professional =await professionals.find(elem => elem.id ==  apps[i].professional_id  )
     //apps_html =apps_html +"<tr><td style='font-size: 1.5em; color: #008080;' > <br> "+await showSpecialtyName(apps[i].specialty_reserved)+"</td><td>"+transform_date(apps[i].date)+"</td><td>"+transform_time(apps[i].start_time)+"</td><td>"+professional.name+"</td><td style='font-size: 1.0em; color: #333;'>"+center.address+"</td></tr> ";
-    apps_html =apps_html +"<br><hr><div><div><div><text style='font-size: 1.5em; color: #008080; padding: 0.0em;'>"+await showSpecialtyName(apps[i].specialty_reserved)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' >"+transform_date(apps[i].date)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' >"+transform_time(apps[i].start_time)+"</text></div></div><div><div>"+professional.name+"</div><div style='font-size: 1.0em; color: #333;'>"+center.address+"</div></div></div> <p><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none;  background-color: #7e0000;'   HREF='"+environment+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_ca'>Cancelar</a><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none; background-color: #4f7900;'   HREF='"+environment+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_co'>Confirmar</a></p>" 
+    apps_html =apps_html +"<br><hr><div><div><div><text style='font-size: 1.5em; color: #008080; padding: 0.0em;'>"+await showSpecialtyName(apps[i].specialty_reserved)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' >"+transform_date(apps[i].date)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' >"+transform_time(apps[i].start_time)+"</text></div></div><div><div>"+professional.name+"</div><div style='font-size: 1.0em; color: #333;'>"+center.address+"</div></div></div> <p><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none;  background-color: #7e0000;'   HREF='"+FRONT_HOST+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_ca'>Cancelar</a><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none; background-color: #4f7900;'   HREF='"+FRONT_HOST+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_co'>Confirmar</a></p>" 
   }
 
   let aux = await html.replace('[appList]', apps_html)
