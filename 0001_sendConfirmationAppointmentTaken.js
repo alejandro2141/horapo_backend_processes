@@ -6,9 +6,12 @@
 aws_access_key_id = 
 aws_secret_access_key = 
 */
+//var configFile = require('./config123_backend');
 
-let environment = "http://localhost:3000"
-let path_html ="/home/alejandro/Documents/GitHub/backend_processes/email_notif_appointments_reserved.html"
+require(__dirname+'/config123_backend_process');
+
+//let environment = "http://localhost:3000"
+//let template ="./email_notif_appointments_reserved.html"
 let html_template = new String() 
 let specialties = new Array() 
 let locations = new Array() 
@@ -39,7 +42,7 @@ async function  main()
 {
 //Step 1, Get all EMails request Recover appointments taken
 
-html_template = await readHTMLFile(path_html)
+html_template = await readHTMLFile(__dirname+"/email_notif_appointments_reserved.html")
 specialties = await getSpecialties()
 locations = await getLocations()
 
