@@ -1,7 +1,7 @@
     
-    //FRONT_HOST = "http://devel.123hora.com:8080",
-    //FRONT_HOST = "http://test.123hora.com:8080",
-    //FRONT_HOST = "http://www.123hora.com:8080",
+    //FRONT_HOST = "http://devel.123hora.com",
+    //FRONT_HOST = "http://test.123hora.com",
+    //FRONT_HOST = "http://www.123hora.com",
     FRONT_HOST = "http://localhost:3000",
 
     BKND_TIME = 1000,
