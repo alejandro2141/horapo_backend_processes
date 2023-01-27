@@ -69,7 +69,7 @@ if (apps_list !=null && apps_list.length > 0)
                 let center =await centers.find(elem => elem.id ==  apps_list[i].center_id  )
                 let professional =await professionals.find(elem => elem.id ==  apps_list[i].professional_id  )
 
-                let app_text="<br><hr><div><div><div><text style='font-size: 2.0em; color: #008080; padding: 0.0em;'>"+await showSpecialtyName(apps_list[i].specialty_reserved)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' >"+transform_date(apps_list[i].date)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' >"+transform_time(apps_list[i].start_time)+"</text></div></div><div><div>"+professional.name+"</div><div style='font-size: 1.0em; color: #333;'>"+center.address+"</div></div></div> " 
+                let app_text="<br><hr><div><div><div><text style='color:#008080; padding: 0.0em;'><h2>"+await showSpecialtyName(apps_list[i].specialty_reserved)+"</h2></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_date(apps_list[i].date)+"</h2></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_time(apps_list[i].start_time)+"</h2></text></div></div><div><div>"+professional.name+"</div><div style='font-size: 1.0em; color: #333;'>"+center.address+"</div></div></div> " 
                  let aux_message = await html_template.replace('[appList]', app_text)
 
                 let register = { 
