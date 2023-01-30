@@ -129,7 +129,6 @@ async function sendmail(data)
         });
         
        // console.log(" Sending Email data :"+JSON.stringify(data))
-
         
         // send some mail
        console.log(Date().toLocaleString()+":S0001:INFO:EMAIL to notif app :"+data.email.toLowerCase() )
@@ -138,7 +137,7 @@ async function sendmail(data)
             from: "RESERVA@123hora.com",
             to: data.email.toLowerCase()  ,
             // subject: "",
-            subject: 'RECORDATORIO DE CITAS',
+            subject: 'Reserva Exitosa '+await showSpecialtyName(data.specialty_reserved),
             html: data.message ,
             
             ses: {
