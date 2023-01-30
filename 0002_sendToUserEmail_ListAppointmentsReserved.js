@@ -241,7 +241,7 @@ async function sendmail(data)
             from: "RECORDATORI0@123hora.com",
             to: data.email.toLowerCase()  ,
 //            subject: "",
-            subject: 'RECORDATORIO DE CITAS',
+            subject: 'Recordatorio de citas '+transform_date(cdate),
             html: data.message ,
             
             ses: {
