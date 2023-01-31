@@ -46,48 +46,46 @@ specialties = await getSpecialties()
 locations = await getLocations()
 
 //  STEP 1 Get emails require recover appointments taken
-let email_list = await get_emailsRequestRecoverAppointments()
+let email_list = await get_emailsRequestConfirmation()
 console.log (cdate.toLocaleString()+":S0003:INFO:EMAILS REQUEST Appointments confirmation:"+JSON.stringify(email_list) )
 if (email_list != null && email_list.length > 0 )
 {
-
     // WHILE  STEP 2 Get all appointments registered for each email
       while  (email_list.length > 0) {
-      let aux_email= email_list.pop()
-      
-      let register = { 
-            'email' : aux_email.email , 
-            'message' : "<h1>noData</h1>"
-          }
-      let apps = await getAppointmentsByEmail(aux_email.email) 
+        let aux_req= email_list.pop()
         
-        if (apps != null && apps.length > 0 )
-        {
-          // SETP 3  : FORMAT LIST Appointments
-            //GET CENTERS
-            let center_id_list = apps.map(val => val.center_id) 
-            //remove duplicated
-            let aux_centers = await getCenters(center_id_list)
-            //GET PROCESSIONAL
-            let professional_id_list = apps.map(val => val.professional_id) 
-            let aux_professinals = await getProfessionals(professional_id_list)
-            //  center_id_list.indexOf(apps.center_id) === -1 ? center_id_list.push(apps.center_id) : console.log("");
-          
-            //register.apps = html_data_email 
-          
-            //push to app list
-            register.message = await buildHtmlMessage(html_template,apps,aux_centers,aux_professinals)
+        let register = { 
+                'email' : aux_req.email , 
+                'message' : "<h1>noData</h1>"
+            }
+        let app = await getAppointmentsById(aux_req.app_id) 
+            
+            if (app != null  )
+            {
+                // SETP 3  : FORMAT LIST Appointments
+                //GET CENTERS
+                let center_id_list = app.map(val => val.center_id) 
+                //remove duplicated
+                let aux_centers = await getCenters(center_id_list)
+                //GET PROCESSIONAL
+                let professional_id_list = app.map(val => val.professional_id) 
+                let aux_professionals = await getProfessionals(professional_id_list)
+                //  center_id_list.indexOf(apps.center_id) === -1 ? center_id_list.push(apps.center_id) : console.log("");
+                //register.apps = html_data_email 
+            
+                //push to app list
+                register.message = await buildHtmlMessage(html_template,app,aux_centers,aux_professionals)
+                email_apps_list.push(register) 
+            }
+            else 
+            {
+            let register = { 
+                'email' : aux_email.email , 
+                'message' : "<h1> [No Existen Citas Agendadas] </h1>"
+            }
             email_apps_list.push(register) 
-        }
-        else 
-        {
-          let register = { 
-            'email' : aux_email.email , 
-            'message' : "<h1> [No Existen Citas Agendadas] </h1>"
-          }
-          email_apps_list.push(register) 
 
-        }
+            }
       
       }
     //END WHILE
@@ -112,29 +110,30 @@ if (email_list != null && email_list.length > 0 )
 //*********    FUNCTIONS             *************** 
 //************************************************** 
 // GET DATA FORM DB
-async function  get_emailsRequestRecoverAppointments()
+async function  get_emailsRequestConfirmation()
 {
   const { Client } = require('pg')
   const client = new Client(conn_data)
   await client.connect()
  
-  const sql_calendars  = "DELETE FROM patient_recover_appointments RETURNING * " ;  
-
+  const sql_calendars  = "DELETE FROM request_app_confirm RETURNING * " ;  
+  //const sql_calendars  = "SELECT * FROM request_app_confirm " ;  
+  
   //console.log ("QUERY GET CALENDAR = "+sql_calendars);
   const res = await client.query(sql_calendars) 
   client.end() 
   return res.rows ;
 }
 
-async function getAppointmentsByEmail(email){
- if (email != null  )
+async function getAppointmentsById(app_id){
+ if (app_id != null  )
  {
   const { Client } = require('pg')
   const client = new Client(conn_data)
   await client.connect()
   
-  const sql_calendars  = "SELECT * FROM appointment WHERE upper(patient_email)= upper('"+email+"') AND date > '"+today.toISOString()+"' ";  
-
+  const sql_calendars  = "SELECT * FROM appointment WHERE id  = "+app_id+" ";  
+console.log("SQL : "+sql_calendars );
   //console.log ("QUERY GET CALENDAR = "+sql_calendars);
   const res = await client.query(sql_calendars) 
   client.end() 
@@ -145,8 +144,9 @@ async function getAppointmentsByEmail(email){
  {
   return null
  }
-
 }
+
+
 
 async function getSpecialties(){
   const { Client } = require('pg')
@@ -235,13 +235,13 @@ async function sendmail(data)
 
         
         // send some mail
-       console.log(cdate.toLocaleString()+":S0002:INFO:EMAILS to send:"+data.email.toLowerCase() )
+       console.log(cdate.toLocaleString()+":S0003:INFO:EMAILS to send:"+data.email.toLowerCase() )
         transporter.sendMail(
           {            
-            from: "RECORDATORI0@123hora.com",
+            from: "CONFIRME_SU ASISTENCIA@123hora.com",
             to: data.email.toLowerCase()  ,
 //            subject: "",
-            subject: 'Recordatorio de citas '+transform_date(cdate),
+            subject: 'Confirme su Asistencia',
             html: data.message ,
             
             ses: {
@@ -249,7 +249,7 @@ async function sendmail(data)
             },
           },
           (info) => {
-            console.log(cdate.toLocaleString()+":S0002:INFO:"+info);
+            console.log(cdate.toLocaleString()+":S0003:INFO:"+info);
           }
         );
    
