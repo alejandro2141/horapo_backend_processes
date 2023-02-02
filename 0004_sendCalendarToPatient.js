@@ -20,7 +20,7 @@ let today = new Date()
 today.setHours(0,0,0,0)
 
 const { Pool, Client } = require('pg')
-let email_apps_list = new Array() 
+let email_calendars_list = new Array() 
 var fs = require('fs');
 //global variables 
 let cdate=new Date()
@@ -53,52 +53,57 @@ console.log (cdate.toLocaleString()+":S0004:INFO:EMAILS SEND Calendar to Patient
 if (email_list != null && email_list.length > 0 )
 {
     // WHILE  STEP 2 Get all appointments registered for each email
-      while  (email_list.length > 0) {
-        let aux_req= email_list.pop()
+    for (let i = 0; i < email_list.length ; i++) {
+        //let aux_req= email_list.pop()
         
         let register = { 
-                'email' : aux_req.email , 
+                'email' : email_list[i].email , 
                 'message' : "<h1>noData</h1>"
             }
-        let app = await getAppointmentsById(aux_req.app_id) 
-            
-            if (app != null  )
+        let calendar = await getCalendarById(email_list[i].calendar_id) 
+        
+        console.log(" CALENDAR :"+JSON.stringify(calendar))  
+            if (calendar != null  )
             {
+              calendar = calendar[0]
                 // SETP 3  : FORMAT LIST Appointments
                 //GET CENTERS
-                let center_id_list = app.map(val => val.center_id) 
-                //remove duplicated
-                let aux_centers = await getCenters(center_id_list)
+               
+                let center = await getCenter(calendar.center_id)
+                console.log(" CENTER:"+JSON.stringify(center))
                 //GET PROCESSIONAL
-                let professional_id_list = app.map(val => val.professional_id) 
-                let aux_professionals = await getProfessionals(professional_id_list)
+                let professional = await getProfessional(calendar.professional_id)
+                console.log(" PROFESSIONAL:"+JSON.stringify(professional))
+                let specialty = await specialties.find(spec => spec.id === calendar.specialty1 );
+                console.log(" SPECIALTY:"+JSON.stringify(specialty))
                 //  center_id_list.indexOf(apps.center_id) === -1 ? center_id_list.push(apps.center_id) : console.log("");
                 //register.apps = html_data_email 
+                
+                let letLinkAgenda = FRONT_HOST+"/nested/publicSiteProfessional.html?params="+professional[0].id+"_"+calendar.id  
             
                 //push to app list
-                register.message = await buildHtmlMessage(html_template,app,aux_centers,aux_professionals)
-                email_apps_list.push(register) 
+                register.message = await buildHtmlMessage(html_template,calendar, center[0], professional[0],specialty ,letLinkAgenda )
+                email_calendars_list.push(register) 
             }
             else 
             {
             let register = { 
                 'email' : aux_email.email , 
                 'message' : "<h1> [No Existen Citas Agendadas] </h1>"
-            }
-            email_apps_list.push(register) 
-
+                }
+              email_calendars_list.push(register) 
             }
       
-      }
-    //END WHILE
+      } //END FOR CYCLE 
 
       //GET CENTERS by  center_id_list TO THEN SEARCH center name and address
       //console.log("EMAILS TO BE SENT:"+JSON.stringify(email_apps_list) )
       // STEP 3   Send emails suing list email_apps_list
-      while (email_apps_list.length >0 ) 
+
+     for (let i = 0; i < email_calendars_list.length ; i++)
       {
-        let register = email_apps_list.pop()
-         await sendmail(register)
+        console.log("email to be send to:"+JSON.stringify(email_calendars_list[i])+"  "  )
+         await sendmail(email_calendars_list[i])
       }
 
 }// end if eamil_list 
@@ -118,8 +123,8 @@ async function  get_emailsToSendCalendarToPatient()
   const client = new Client(conn_data)
   await client.connect()
  
-  const sql_calendars  = "DELETE FROM send_calendar_patient RETURNING * " ;  
-  //const sql_calendars  = "SELECT * FROM request_app_confirm " ;  
+  //const sql_calendars  = "DELETE FROM send_calendar_patient RETURNING * " ;  
+    const sql_calendars  = "SELECT * FROM  send_calendar_patient  " ;  
   
   //console.log ("QUERY GET CALENDAR = "+sql_calendars);
   const res = await client.query(sql_calendars) 
@@ -127,14 +132,14 @@ async function  get_emailsToSendCalendarToPatient()
   return res.rows ;
 }
 
-async function getAppointmentsById(app_id){
- if (app_id != null  )
+async function getCalendarById(cal_id){
+ if (cal_id != null  )
  {
   const { Client } = require('pg')
   const client = new Client(conn_data)
   await client.connect()
   
-  const sql_calendars  = "SELECT * FROM appointment WHERE id  = "+app_id+" ";  
+  const sql_calendars  = "SELECT * FROM professional_calendar  WHERE id  = "+cal_id+" ";  
 console.log("SQL : "+sql_calendars );
   //console.log ("QUERY GET CALENDAR = "+sql_calendars);
   const res = await client.query(sql_calendars) 
@@ -174,17 +179,17 @@ async function getLocations(){
   return res.rows ; 
 }
 
-async function getCenters(ids){
-  if (ids !=null  && ids.length > 0 )
+async function getCenter(id){
+  if (id !=null)
   {
   const { Client } = require('pg')
   const client = new Client(conn_data)
   await client.connect()
   
-  const sql_centers  = "SELECT * FROM center WHERE id IN ("+ids+") " ;  
+  const sql_center  = "SELECT * FROM center WHERE id = "+id+" " ;  
   
-  //console.log("CENTERS IDS:"+sql_centers);
-  const res = await client.query(sql_centers) 
+  console.log("CENTER SQL :"+sql_center);
+  const res = await client.query(sql_center) 
   //console.log("CENTERS :"+JSON.stringify(res.rows) );
   client.end() 
   return res.rows ;
@@ -196,16 +201,16 @@ async function getCenters(ids){
   
 }
 
-async function getProfessionals(ids){
+async function getProfessional(id){
   const { Client } = require('pg')
   const client = new Client(conn_data)
   await client.connect()
-  const sql_centers  = "SELECT * FROM professional WHERE id IN ("+ids+") " ;  
-  
-  const res = await client.query(sql_centers) 
+  const sql_professional  = "SELECT * FROM professional WHERE id = "+id+" " ;  
+  console.log(" sql professional :"+sql_professional)
+
+  const res = await client.query(sql_professional) 
   client.end() 
   return res.rows ; 
-  
 }
 
 
@@ -240,10 +245,10 @@ async function sendmail(data)
        console.log(cdate.toLocaleString()+":S0003:INFO:EMAILS to send:"+data.email.toLowerCase() )
         transporter.sendMail(
           {            
-            from: "CONFIRME_SU ASISTENCIA@123hora.com",
+            from: "AGENDA-DIRECTA@123hora.com",
             to: data.email.toLowerCase()  ,
 //            subject: "",
-            subject: 'Confirme su Asistencia',
+            subject: 'Le comparto mi agenda de horas disponibles',
             html: data.message ,
             
             ses: {
@@ -263,23 +268,24 @@ async function readHTMLFile(path) {
   return html_data
 }
 
-async function buildHtmlMessage(html,apps,centers,professionals){
+async function buildHtmlMessage(html,calendar,center,professional,specialty, link ){
 //console.log("CENTERS in BUILD HTML:"+JSON.stringify(centers))
   //1st build app list
   apps_html = new String()
  
-  for (let i = 0; i < apps.length; i++) {
-    let center =await centers.find(elem => elem.id ==  apps[i].center_id  )
-    let professional =await professionals.find(elem => elem.id ==  apps[i].professional_id  )
-    //apps_html =apps_html +"<tr><td style='font-size: 1.5em; color: #008080;' > <br> "+await showSpecialtyName(apps[i].specialty_reserved)+"</td><td>"+transform_date(apps[i].date)+"</td><td>"+transform_time(apps[i].start_time)+"</td><td>"+professional.name+"</td><td style='font-size: 1.0em; color: #333;'>"+center.address+"</td></tr> ";
-    apps_html =apps_html +"<br><hr><div><div><div><text style='color: #008080; padding: 0.0em;'><h1>"+await showSpecialtyName(apps[i].specialty_reserved)+"</h1></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_date(apps[i].date)+"</h2></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_time(apps[i].start_time)+"</h2></text></div></div><div><div>"+professional.name+"</div><div style='font-size: 1.0em; color: #333;'>"+center.address+"</div></div></div> <p><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none;  background-color: #7e0000;'   HREF='"+FRONT_HOST+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_ca'>Cancelar</a><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none; background-color: #4f7900;'   HREF='"+FRONT_HOST+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_co'>Confirmar</a></p>" 
-  }
+  let specialty_name = specialty.name 
+  let professional_name = professional.name
+  let center_address = center.address
+  let calendar_id = calendar.id 
 
-  let aux = await html.replace('[appList]', apps_html)
+  
+
+  let aux = await html.replace('[SPECIALTY]',specialty_name).replace('[PROFESSIONAL]',professional_name).replace('[CENTER]',center_address).replace('[LINK_AGENDA]',link)
 
   return aux
 }
 
+/*
 async function showSpecialtyName(id){
   let temp= await specialties.find(elem => elem.id ==  id  )
   if (temp != null) { return temp.name }
@@ -292,7 +298,7 @@ async function getCenterData(id){
   else { return null }
 }
 
-
+*/
 
 async function comuna_id2name(id)
 {
