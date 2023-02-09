@@ -123,8 +123,8 @@ async function  get_emailsToSendCalendarToPatient()
   const client = new Client(conn_data)
   await client.connect()
  
-  //const sql_calendars  = "DELETE FROM send_calendar_patient RETURNING * " ;  
-    const sql_calendars  = "SELECT * FROM  send_calendar_patient  " ;  
+  const sql_calendars  = "DELETE FROM send_calendar_patient RETURNING * " ;  
+  //  const sql_calendars  = "SELECT * FROM  send_calendar_patient  " ;  
   
   //console.log ("QUERY GET CALENDAR = "+sql_calendars);
   const res = await client.query(sql_calendars) 
