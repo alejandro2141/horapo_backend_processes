@@ -1,5 +1,5 @@
 # backend_processes
-Backend Processes require run in 123Hora
+Backend Processes require run in medihora
 
 To send emails frist create in user home: 
 /.aws/credentials
