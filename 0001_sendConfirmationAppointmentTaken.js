@@ -69,8 +69,8 @@ if (apps_list !=null && apps_list.length > 0)
                 let center =await centers.find(elem => elem.id ==  apps_list[i].center_id  )
                 let professional =await professionals.find(elem => elem.id ==  apps_list[i].professional_id  )
 
-                let app_text="<br><hr><div><div><div><text style='color:#008080; padding: 0.0em;'><h2>"+await showSpecialtyName(apps_list[i].specialty_reserved)+"</h2></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_date(apps_list[i].date)+"</h2></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_time(apps_list[i].start_time)+"</h2></text></div></div><div><div>"+professional.name+"</div><div style='font-size: 1.0em; color: #333;'>"+center.address+"</div></div></div> " 
-                 let aux_message = await html_template.replace('[appList]', app_text)
+                let app_text="<br><div><div><div><text style='color:#008080; padding: 0.0em;'><text style='font-size: 1.7em; color: #2A8711;'>"+await showSpecialtyName(apps_list[i].specialty_reserved)+"</text></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_date(apps_list[i].date)+"</h2></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_time(apps_list[i].start_time)+"</h2></text></div></div> <div style='font-size: 1.5em; color: #333;'><div>"+professional.name+"</div><div>"+center.address+"</div></div></div> " 
+                let aux_message = await html_template.replace('[appList]', app_text)
 
                 let register = { 
                   'email' : apps_list[i].patient_email , 
@@ -134,7 +134,7 @@ async function sendmail(data)
        console.log(Date().toLocaleString()+":S0001:INFO:EMAIL to notif app :"+data.email.toLowerCase() )
         transporter.sendMail(
           {            
-            from: "RESERVA@123hora.com",
+            from: "RESERVA_HORAPO@123hora.com",
             to: data.email.toLowerCase()  ,
             // subject: "",
             subject: 'Reserva Exitosa '+await showSpecialtyName(data.specialty_reserved),
@@ -232,7 +232,7 @@ return ( temp.getDate()+" "+getMonthName(temp.getMonth()+1)+" "+temp.getFullYear
 function transform_time(time)
 {
 let tim = new Date(time) ;
-return (""+new String(tim.getHours()).padStart(2,0)+":"+new String(tim.getMinutes()).padStart(2,0) )
+return (""+new String(tim.getHours()).padStart(2,0)+":"+new String(tim.getMinutes()).padStart(2,0)+" Hrs" )
 }
 
 function getMonthName(month)
@@ -241,10 +241,6 @@ function getMonthName(month)
     let months = ['nodata','Enero','Febrero' ,'Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre' ]
     return months[parseInt(month)];
 }
-
-
-
-
 
 
 
