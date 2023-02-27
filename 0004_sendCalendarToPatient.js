@@ -245,10 +245,10 @@ async function sendmail(data)
        console.log(cdate.toLocaleString()+":S0003:INFO:EMAILS to send:"+data.email.toLowerCase() )
         transporter.sendMail(
           {            
-            from: "AGENDA-DIRECTA@123hora.com",
+            from: "horapo-agenda@123hora.com",
             to: data.email.toLowerCase()  ,
 //            subject: "",
-            subject: 'Le comparto mi agenda de horas disponibles',
+            subject: 'horapo - Agenda Profesional para busqueda de horas disponibles',
             html: data.message ,
             
             ses: {
