@@ -89,6 +89,14 @@ if (apps_list !=null && apps_list.length > 0)
 //*********    FUNCTIONS             *************** 
 //************************************************** 
 
+
+async function getMailNumber()
+{
+  let aux = new Date()
+  return ( getYear()+""+(aux.getMonth()+1)+""+aux.getDate()+""+aux.getHours()+""+aux.getMinutes()+""+aux.getSeconds()+""+aux.getSeconds()+""+aux.getMilliseconds() )
+
+}
+
 // GET APPS TO NOTIF 
 async function get_app_to_notif()
 {
@@ -134,7 +142,7 @@ async function sendmail(data)
        console.log(Date().toLocaleString()+":S0001:INFO:EMAIL to notif app :"+data.email.toLowerCase() )
         transporter.sendMail(
           {            
-            from: "RESERVA_HORAPO@123hora.com",
+            from: "horapo_reserva@123hora.com",
             to: data.email.toLowerCase()  ,
             // subject: "",
             subject: 'Reserva Exitosa '+await showSpecialtyName(data.specialty_reserved),
