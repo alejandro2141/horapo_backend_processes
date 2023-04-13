@@ -1,5 +1,5 @@
 //****************************************************  
-//     SEND CALENDAR TO PATIENT  
+//     SEND INVITATION  
 //****************************************************
 
 /*
@@ -20,7 +20,7 @@ let today = new Date()
 today.setHours(0,0,0,0)
 
 const { Pool, Client } = require('pg')
-let email_calendars_list = new Array() 
+let email_invitation_list = new Array() 
 var fs = require('fs');
 //global variables 
 let cdate=new Date()
@@ -43,77 +43,29 @@ async function  main()
 {
 //Step 1, Get all EMails request Recover appointments taken
 
-html_template = await readHTMLFile(__dirname+"/0005_send_notification_patient_appointment_cancelled.html")
-specialties = await getSpecialties()
-locations = await getLocations()
-
+html_template = await readHTMLFile(__dirname+"/0006_send_invitation_to_professional.html")
 //  STEP 1 Get appointments require recover appointments taken
-let app_list = await getAppointmentsToBeCancelled()
-console.log (cdate.toLocaleString()+":S0005:INFO:APPOINTMENTS CANCELLATION :"+JSON.stringify(app_list) )
+let emails = await getInvitationProfessionalToSend()
+console.log (cdate.toLocaleString()+":S0006:INFO:SEND INVITATION TO PROFESSIONAL :"+JSON.stringify(emails) )
 
 
-if (app_list != null && app_list.length > 0 )
+if (emails != null && emails.length > 0 )
 {
     // WHILE  STEP 2 Get all appointments registered for each email
-    for (let i = 0; i < app_list.length ; i++) {
-        //let aux_req= email_list.pop()
+    for (let i = 0; i < emails.length ; i++) {
         
         let register = { 
-                'email' : app_list[i].patient_email , 
+                'email' : emails[i].email , 
                 'message' : "<h1>noDataCancellation</h1>"
             }
-        let calendar = await getCalendarById(app_list[i].calendar_id) 
-        
-        console.log(" CALENDAR :"+JSON.stringify(calendar))  
-            if (calendar != null  )
-            {
-              calendar = calendar[0]
-                // SETP 3  : FORMAT LIST Appointments
-                //GET CENTERS
-               
-                let center = await getCenter(calendar.center_id)
-                console.log(" CENTER:"+JSON.stringify(center))
-                //GET PROCESSIONAL
-                let professional = await getProfessional(calendar.professional_id)
-                console.log(" PROFESSIONAL:"+JSON.stringify(professional))
-                let specialty = await specialties.find(spec => spec.id === calendar.specialty1 );
-                console.log(" SPECIALTY:"+JSON.stringify(specialty))
-                //  center_id_list.indexOf(apps.center_id) === -1 ? center_id_list.push(apps.center_id) : console.log("");
-                //register.apps = html_data_email 
-                
-                let letLinkAgenda = FRONT_HOST+"/nested/publicSiteProfessional.html?params="+professional[0].id+"_"+calendar.id  
-            
-                let app_date = new Date(app_list[i].date)
-                let text_date = app_date.getDate()+" "+app_date.getMonth()+" "+app_date.getFullYear()
-                
-                let app_time = new Date(app_list[i].date)
-                let text_time = app_time.getHours()+":"+app_time.getMinutes() 
-                
-                //let text_date = app_date.getHours()+":"+ app_list[i].getMinutes()
-
-                //push to app list
-                register.message = await buildHtmlMessage(html_template,calendar, center[0], professional[0],specialty ,letLinkAgenda , text_date , text_time  )
-                email_calendars_list.push(register) 
-            }
-            else 
-            {
-            let register = { 
-                'email' : aux_email.email , 
-                'message' : "<h1> [No Existen Citas Agendadas] </h1>"
-                }
-              email_calendars_list.push(register) 
-            }
-      
+        register.message = await buildHtmlMessage(html_template)
+        email_invitation_list.push(register)       
       } //END FOR CYCLE 
 
-      //GET CENTERS by  center_id_list TO THEN SEARCH center name and address
-      //console.log("EMAILS TO BE SENT:"+JSON.stringify(email_apps_list) )
-      // STEP 3   Send emails suing list email_apps_list
-
-     for (let i = 0; i < email_calendars_list.length ; i++)
+     for (let i = 0; i < email_invitation_list.length ; i++)
       {
-        console.log("email to be send to:"+JSON.stringify(email_calendars_list[i])+"  "  )
-         await sendmail(email_calendars_list[i])
+        console.log("email to be send to:"+JSON.stringify(email_invitation_list[i])+"  "  )
+         await sendmail(email_invitation_list[i])
       }
 
 }// end if eamil_list 
@@ -126,13 +78,13 @@ if (app_list != null && app_list.length > 0 )
 //*********    FUNCTIONS             *************** 
 //************************************************** 
 // GET DATA FORM DB
-async function  getAppointmentsToBeCancelled()
+async function  getInvitationProfessionalToSend()
 {
   const { Client } = require('pg')
   const client = new Client(conn_data)
   await client.connect()
  
-      const sql_calendars  = "DELETE   FROM  appointment_cancelled    RETURNING * " ;  
+      const sql_calendars  = "DELETE   FROM  invitation_professional    RETURNING * " ;  
   //  const sql_calendars  = "SELECT * FROM  appointment_cancelled   " ;  
   
   //console.log ("QUERY GET CALENDAR = "+sql_calendars);
@@ -140,6 +92,8 @@ async function  getAppointmentsToBeCancelled()
   client.end() 
   return res.rows ;
 }
+
+/*
 
 async function getCalendarById(cal_id){
  if (cal_id != null  )
@@ -222,7 +176,7 @@ async function getProfessional(id){
   return res.rows ; 
 }
 
-
+*/
 
 
 // END GET DATA FORM DB
@@ -254,10 +208,10 @@ async function sendmail(data)
        console.log(cdate.toLocaleString()+":S0003:INFO:EMAILS to send:"+data.email.toLowerCase() )
         transporter.sendMail(
           {            
-            from: "horapo-cancelacion_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@123hora.com",
+            from: "horapo-invitacion_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@123hora.com",
             to: data.email.toLowerCase()  ,
 //            subject: "",
-            subject: 'horapo - Agenda Profesional para busqueda de horas disponibles',
+            subject: 'horapo - Invitacion Profesional para busqueda de horas disponibles',
             html: data.message ,
             
             ses: {
@@ -277,9 +231,10 @@ async function readHTMLFile(path) {
   return html_data
 }
 
-async function buildHtmlMessage(html,calendar,center,professional,specialty, link, date, start_time ){
+async function buildHtmlMessage(html){
 //console.log("CENTERS in BUILD HTML:"+JSON.stringify(centers))
   //1st build app list
+/*
   apps_html = new String()
  
   let specialty_name = specialty.name 
@@ -290,8 +245,8 @@ async function buildHtmlMessage(html,calendar,center,professional,specialty, lin
   
 
   let aux = await html.replace('[SPECIALTY]',specialty_name).replace('[PROFESSIONAL]',professional_name).replace('[CENTER]',center_address).replace('[LINK_AGENDA]',link).replace('[DATE]',date).replace('[START_TIME]',start_time)
-
-  return aux
+*/
+  return html
 }
 
 /*
@@ -308,7 +263,7 @@ async function getCenterData(id){
 }
 
 */
-
+/*
 async function comuna_id2name(id)
 {
   let temp= await locations.find(elem => elem.id ==  id  )
@@ -336,5 +291,5 @@ function getMonthName(month)
     let months = ['nodata','Enero','Febrero' ,'Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre' ]
     return months[parseInt(month)];
 }
-
+*/
 
