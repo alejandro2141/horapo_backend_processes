@@ -205,13 +205,13 @@ async function sendmail(data)
 
         
         // send some mail
-       console.log(cdate.toLocaleString()+":S0003:INFO:EMAILS to send:"+data.email.toLowerCase() )
+       console.log(cdate.toLocaleString()+":S0006:INFO:EMAILS to send:"+data.email.toLowerCase() )
         transporter.sendMail(
           {            
-            from: "horapo-invitacion_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@123hora.com",
+            from: "Team_horapo_Invitacion"+Math.floor(Math.random()* (1000 - 1) + 1)+"@123hora.com",
             to: data.email.toLowerCase()  ,
 //            subject: "",
-            subject: 'horapo - Invitacion Profesional para busqueda de horas disponibles',
+            subject: 'horapo - Horas Profesionales',
             html: data.message ,
             
             ses: {
@@ -219,7 +219,7 @@ async function sendmail(data)
             },
           },
           (info) => {
-            console.log(cdate.toLocaleString()+":S0003:INFO:"+info);
+            console.log(cdate.toLocaleString()+":S0006:INFO:"+info);
           }
         );
    
