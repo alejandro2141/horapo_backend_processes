@@ -93,95 +93,8 @@ async function  getInvitationProfessionalToSend()
   return res.rows ;
 }
 
-/*
-
-async function getCalendarById(cal_id){
- if (cal_id != null  )
- {
-  const { Client } = require('pg')
-  const client = new Client(conn_data)
-  await client.connect()
-  
-  const sql_calendars  = "SELECT * FROM professional_calendar  WHERE id  = "+cal_id+" ";  
-console.log("SQL : "+sql_calendars );
-  //console.log ("QUERY GET CALENDAR = "+sql_calendars);
-  const res = await client.query(sql_calendars) 
-  client.end() 
-  //console.log("Apps from :"+email)
-  return res.rows ; 
- }
- else
- {
-  return null
- }
-}
-
-
-
-async function getSpecialties(){
-  const { Client } = require('pg')
-  const client = new Client(conn_data)
-  await client.connect()
- 
-  const sql_calendars  = "SELECT * FROM specialty " ;  
-
-  //console.log ("QUERY GET CALENDAR = "+sql_calendars);
-  const res = await client.query(sql_calendars) 
-  client.end() 
-  //console.log("Apps from :"+email)
-  return res.rows ; 
-}
-
-async function getLocations(){
-  const { Client } = require('pg')
-  const client = new Client(conn_data)
-  await client.connect()
-  const sql_calendars  = "SELECT * FROM comuna " ;  
-  const res = await client.query(sql_calendars) 
-  client.end() 
-  return res.rows ; 
-}
-
-async function getCenter(id){
-  if (id !=null)
-  {
-  const { Client } = require('pg')
-  const client = new Client(conn_data)
-  await client.connect()
-  
-  const sql_center  = "SELECT * FROM center WHERE id = "+id+" " ;  
-  
-  console.log("CENTER SQL :"+sql_center);
-  const res = await client.query(sql_center) 
-  //console.log("CENTERS :"+JSON.stringify(res.rows) );
-  client.end() 
-  return res.rows ;
-  }
-  else 
-  {
-    return null 
-  } 
-  
-}
-
-async function getProfessional(id){
-  const { Client } = require('pg')
-  const client = new Client(conn_data)
-  await client.connect()
-  const sql_professional  = "SELECT * FROM professional WHERE id = "+id+" " ;  
-  console.log(" sql professional :"+sql_professional)
-
-  const res = await client.query(sql_professional) 
-  client.end() 
-  return res.rows ; 
-}
-
-*/
-
 
 // END GET DATA FORM DB
-
-
 
 async function sendmail(data)
   {
@@ -206,11 +119,12 @@ async function sendmail(data)
         
         // send some mail
        console.log(cdate.toLocaleString()+":S0006:INFO:EMAILS to send:"+data.email.toLowerCase() )
+
+       
         transporter.sendMail(
           {            
-            from: "Team_horapo_Invitacion"+Math.floor(Math.random()* (1000 - 1) + 1)+"@123hora.com",
+            from: "Team_horapo"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.com",
             to: data.email.toLowerCase()  ,
-//            subject: "",
             subject: 'horapo - Horas Profesionales',
             html: data.message ,
             
@@ -222,6 +136,7 @@ async function sendmail(data)
             console.log(cdate.toLocaleString()+":S0006:INFO:"+info);
           }
         );
+        
    
 
   }
@@ -246,50 +161,11 @@ async function buildHtmlMessage(html){
 
   let aux = await html.replace('[SPECIALTY]',specialty_name).replace('[PROFESSIONAL]',professional_name).replace('[CENTER]',center_address).replace('[LINK_AGENDA]',link).replace('[DATE]',date).replace('[START_TIME]',start_time)
 */
-  return html
-}
 
-/*
-async function showSpecialtyName(id){
-  let temp= await specialties.find(elem => elem.id ==  id  )
-  if (temp != null) { return temp.name }
-  else { return null }
-}
 
-async function getCenterData(id){
-  let temp= await centers.find(elem => elem.id ==  id  )
-  if (temp != null) { return temp }
-  else { return null }
-}
-
-*/
-/*
-async function comuna_id2name(id)
-{
-  let temp= await locations.find(elem => elem.id ==  id  )
-  if (temp != null) { return temp.name }
-  else { return null }
+ let aux = await html.replace('[FRONT_HOST]',FRONT_HOST)
+  return aux
 }
 
 
-function transform_date(date)
-{
-//let temp = date.split("-") ;
-let temp = new Date(date);
-return ( temp.getDate()+"-"+getMonthName(temp.getMonth()+1)+"-"+temp.getFullYear() )
-}
-
-function transform_time(time)
-{
-let tim = new Date(time) ;
-return (""+new String(tim.getHours()).padStart(2,0)+":"+new String(tim.getMinutes()).padStart(2,0) )
-}
-
-function getMonthName(month)
-{
-    //console.log("MONTH:"+parseInt(month));
-    let months = ['nodata','Enero','Febrero' ,'Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre' ]
-    return months[parseInt(month)];
-}
-*/
 
