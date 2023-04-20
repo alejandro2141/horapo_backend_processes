@@ -142,7 +142,7 @@ async function sendmail(data)
        console.log(Date().toLocaleString()+":S0001:INFO:EMAIL to notif app :"+data.email.toLowerCase() )
         transporter.sendMail(
           {            
-            from: "horapo_reserva@123hora.com",
+            from: "horapo_reserva@horapo.com",
             to: data.email.toLowerCase()  ,
             // subject: "",
             subject: 'Reserva Exitosa '+await showSpecialtyName(data.specialty_reserved),
