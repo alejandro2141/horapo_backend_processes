@@ -43,7 +43,7 @@ async function  main()
 {
 //Step 1, Get all EMails request Recover appointments taken
 
-html_template = await readHTMLFile(__dirname+"/0006_send_invitation_to_professional.html")
+html_template = await readHTMLFile(__dirname+"/0006_send_invitation_to_professional_v2.html")
 //  STEP 1 Get appointments require recover appointments taken
 let emails = await getInvitationProfessionalToSend()
 console.log (cdate.toLocaleString()+":S0006:INFO:SEND INVITATION TO PROFESSIONAL :"+JSON.stringify(emails) )
@@ -123,7 +123,7 @@ async function sendmail(data)
        
         transporter.sendMail(
           {            
-            from: "Team_horapo"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.com",
+            from: "Equipo_horapo_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.com",
             to: data.email.toLowerCase()  ,
             subject: 'horapo - Horas Profesionales',
             html: data.message ,
@@ -163,7 +163,7 @@ async function buildHtmlMessage(html){
 */
 
 
- let aux = await html.replace('[FRONT_HOST]',FRONT_HOST)
+ let aux = await html.replace(/\[FRONT_HOST\]/g,FRONT_HOST)
   return aux
 }
 
