@@ -42,7 +42,7 @@ async function  main()
 {
 //Step 1, Get all EMails request Recover appointments taken
 
-html_template = await readHTMLFile(__dirname+"/email_notif_appointments_reserved.html")
+html_template = await readHTMLFile(__dirname+"/0001_sendConfirmationAppointmentTaken.html")
 specialties = await getSpecialties()
 locations = await getLocations()
 
