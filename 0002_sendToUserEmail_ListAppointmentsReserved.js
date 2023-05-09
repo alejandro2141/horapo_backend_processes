@@ -273,7 +273,7 @@ async function buildHtmlMessage(html,apps,centers,professionals){
     apps_html =apps_html +"<br><hr><div><div><div><text style='font-size: 1.7em; color: #2A8711;'>"+await showSpecialtyName(apps[i].specialty_reserved)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_date(apps[i].date)+"</h2></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_time(apps[i].start_time)+"</h2></text></div></div><div><div>"+professional.name+"</div><div style='font-size: 1.0em; color: #333;'>"+center.address+"</div></div></div> <p><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none;  background-color: #7e0000;'   HREF='"+FRONT_HOST+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_ca'>Cancelar</a><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none; background-color: #4f7900;'   HREF='"+FRONT_HOST+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_co'>Confirmar</a></p>" 
   }
 
-  let aux = await html.replace('[appList]', apps_html)
+  let aux = await html.replace(/\[appList\]/g, apps_html).replace(/\[FRONT_HOST\]/g,FRONT_HOST)
 
   return aux
 }
