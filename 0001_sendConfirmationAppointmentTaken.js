@@ -70,7 +70,7 @@ if (apps_list !=null && apps_list.length > 0)
                 let professional =await professionals.find(elem => elem.id ==  apps_list[i].professional_id  )
 
                 let app_text="<br><div><div><div><text style='color:#008080; padding: 0.0em;'><text style='font-size: 1.7em; color: #2A8711;'>"+await showSpecialtyName(apps_list[i].specialty_reserved)+"</text></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_date(apps_list[i].date)+"</h2></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_time(apps_list[i].start_time)+"</h2></text></div></div> <div style='font-size: 1.5em; color: #333;'><div>"+professional.name+"</div><div>"+center.address+"</div></div></div> " 
-                let aux_message = await html_template.replace('[appList]', app_text)
+                let aux_message = await html_template.replace(/\[appList\]/g, app_text).replace(/\[FRONT_HOST\]/g,FRONT_HOST)
 
                 let register = { 
                   'email' : apps_list[i].patient_email , 
