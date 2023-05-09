@@ -69,8 +69,25 @@ if (apps_list !=null && apps_list.length > 0)
                 let center =await centers.find(elem => elem.id ==  apps_list[i].center_id  )
                 let professional =await professionals.find(elem => elem.id ==  apps_list[i].professional_id  )
 
-                let app_text="<br><div><div><div><text style='color:#008080; padding: 0.0em;'><text style='font-size: 1.7em; color: #2A8711;'>"+await showSpecialtyName(apps_list[i].specialty_reserved)+"</text></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_date(apps_list[i].date)+"</h2></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_time(apps_list[i].start_time)+"</h2></text></div></div> <div style='font-size: 1.5em; color: #333;'><div>"+professional.name+"</div><div>"+center.address+"</div></div></div> " 
-                let aux_message = await html_template.replace(/\[appList\]/g, app_text).replace(/\[FRONT_HOST\]/g,FRONT_HOST)
+               // let app_text="<br><div><div><div><text style=''><text style=''>"+await showSpecialtyName(apps_list[i].specialty_reserved)+"</text></text></div><div><text style='' ><h2>"+transform_date(apps_list[i].date)+"</h2></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_time(apps_list[i].start_time)+"</h2></text></div></div> <div style='font-size: 1.5em; color: #333;'><div> Con el profesional: "+professional.name+"</div><div>"+center.address+"</div></div></div> " 
+                let aux_message = await html_template.replace(/SPECIALTY/g, await showSpecialtyName(apps_list[i].specialty_reserved)).replace(/APP_DATE/g,await transform_date(apps_list[i].date)).replace(/APP_TIME/g,await transform_time(apps_list[i].start_time)).replace(/PROFESSIONAL_NAME/g,professional.name).replace(/\[FRONT_HOST\]/g,FRONT_HOST)
+                //"home_visit":false,"center_visit":false,"remote_care":true
+                if (center.home_visit)
+                  {
+                  aux_message = await aux_message.replace(/APP_TYPE/g, "Cita a Domicilio del paciente" ) 
+                  aux_message = await aux_message.replace(/APP_ADDRESS/g, apps_list[i].patient_address )
+                  }
+                if (center.center_visit)
+                  {
+                  aux_message = await aux_message.replace(/APP_TYPE/g, "Cita en Consulta del profesional" )
+                  aux_message = await aux_message.replace(/APP_ADDRESS/g, center.address )
+                  }
+                if (center.remote_care)
+                  {
+                  aux_message = await aux_message.replace(/APP_TYPE/g, "Cita Remota" ) 
+                  aux_message = await aux_message.replace(/APP_ADDRESS/g, "En llamada o Video Conferencia" )
+                  }
+
 
                 let register = { 
                   'email' : apps_list[i].patient_email , 
@@ -136,11 +153,12 @@ async function sendmail(data)
           SES: { ses, aws },
         });
         
-       // console.log(" Sending Email data :"+JSON.stringify(data))
+        console.log(" Sending Email data :"+JSON.stringify(data))
         
         // send some mail
        console.log(Date().toLocaleString()+":S0001:INFO:EMAIL to notif app :"+data.email.toLowerCase() )
-        transporter.sendMail(
+        
+       transporter.sendMail(
           {            
             from: "horapo_reserva@horapo.com",
             to: data.email.toLowerCase()  ,
@@ -156,6 +174,7 @@ async function sendmail(data)
             console.log(cdate.toLocaleString()+":S0001:INFO:"+info);
           }
         );
+        
    
   }
 
@@ -193,9 +212,9 @@ async function getCenters(ids){
   
   const sql_centers  = "SELECT * FROM center WHERE id IN ("+ids+") " ;  
   
-  //console.log("CENTERS IDS:"+sql_centers);
+  console.log("CENTERS IDS:"+sql_centers);
   const res = await client.query(sql_centers) 
-  //console.log("CENTERS :"+JSON.stringify(res.rows) );
+  console.log("CENTERS :"+JSON.stringify(res.rows) );
   client.end() 
   return res.rows ;
   }
@@ -230,20 +249,20 @@ async function showSpecialtyName(id){
   else { return null }
 }
 
-function transform_date(date)
+async function transform_date(date)
 {
 //let temp = date.split("-") ;
 let temp = new Date(date);
-return ( temp.getDate()+" "+getMonthName(temp.getMonth()+1)+" "+temp.getFullYear() )
+return ( temp.getDate()+" "+await getMonthName(temp.getMonth()+1)+" "+temp.getFullYear() )
 }
 
-function transform_time(time)
+async function transform_time(time)
 {
 let tim = new Date(time) ;
 return (""+new String(tim.getHours()).padStart(2,0)+":"+new String(tim.getMinutes()).padStart(2,0)+" Hrs" )
 }
 
-function getMonthName(month)
+async function getMonthName(month)
 {
     //console.log("MONTH:"+parseInt(month));
     let months = ['nodata','Enero','Febrero' ,'Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre' ]
