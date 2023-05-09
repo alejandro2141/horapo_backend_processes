@@ -280,8 +280,8 @@ async function buildHtmlMessage(html,calendar,center,professional,specialty, lin
 
   
 
-  let aux = await html.replace('[SPECIALTY]',specialty_name).replace('[PROFESSIONAL]',professional_name).replace('[CENTER]',center_address).replace('[LINK_AGENDA]',link)
-
+  let aux = await html.replace(/\[SPECIALTY\]/g,specialty_name).replace(/\[PROFESSIONAL\]/g,professional_name).replace(/\[CENTER\]/g,center_address).replace(/\[LINK_AGENDA\]/g,link).replace(/\[FRONT_HOST\]/g,FRONT_HOST)
+ 
   return aux
 }
 
