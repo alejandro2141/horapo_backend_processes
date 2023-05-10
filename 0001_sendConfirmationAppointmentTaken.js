@@ -94,7 +94,7 @@ if (apps_list !=null && apps_list.length > 0)
                   'message' : aux_message ,
                   'extra_subject' : await showSpecialtyName(apps_list[i].specialty_reserved),
                     }
-              
+              console.log("S0001:INFO:sending register to sendmail")
                 sendmail(register)
             }
         }// end if eamil_list 
@@ -138,7 +138,7 @@ async function get_app_to_notif()
 async function sendmail(data)
   {
                 
-
+    console.log("S0001:INFO: Require nodemailer")
     let nodemailer = require("nodemailer");
         let aws = require("@aws-sdk/client-ses");
         let { defaultProvider } = require("@aws-sdk/credential-provider-node");
@@ -150,15 +150,16 @@ async function sendmail(data)
         });
 
         // create Nodemailer SES transporter
+        console.log("S0001:INFO:createTransport")
         let transporter = nodemailer.createTransport({
           SES: { ses, aws },
         });
         
-        console.log(" Sending Email data :"+JSON.stringify(data))
+        console.log(" S0001:INFO:sending data :"+JSON.stringify(data))
         
         // send some mail
        console.log(Date().toLocaleString()+":S0001:INFO:EMAIL to notif app :"+data.email.toLowerCase() )
-        
+       console.log("S0001:INFO:Finally Transporter Sendmail")
        transporter.sendMail(
           {            
             from: "horapo_reserva@horapo.com",
@@ -240,6 +241,7 @@ async function getProfessionals(ids){
 
 
 async function readHTMLFile(path) {
+  console.log("S0001:INFO:READ HTML FILE")
   const html_data = await fs.readFileSync(path,{encoding:'utf8', flag:'r'});
   return html_data
 }
