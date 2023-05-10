@@ -140,9 +140,12 @@ async function sendmail(data)
                 
     console.log("S0001:INFO: Require nodemailer")
     let nodemailer = require("nodemailer");
+    console.log("S0001:INFO: Require nodemailer done")
         let aws = require("@aws-sdk/client-ses");
+    console.log("S0001:INFO: Require @aws-sdk/client-ses done")
         let { defaultProvider } = require("@aws-sdk/credential-provider-node");
-        
+    console.log("S0001:INFO: Require @aws-sdk/credential-provider-node done")
+
         const ses = new aws.SES({
           apiVersion: "2010-12-01",
           region: "us-east-2",
@@ -241,8 +244,8 @@ async function getProfessionals(ids){
 
 
 async function readHTMLFile(path) {
-  console.log("S0001:INFO:READ HTML FILE")
   const html_data = await fs.readFileSync(path,{encoding:'utf8', flag:'r'});
+  console.log("S0001:INFO:READ HTML FILE Done")
   return html_data
 }
 
