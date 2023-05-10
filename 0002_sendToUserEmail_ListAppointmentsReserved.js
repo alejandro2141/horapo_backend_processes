@@ -270,7 +270,22 @@ async function buildHtmlMessage(html,apps,centers,professionals){
     let center =await centers.find(elem => elem.id ==  apps[i].center_id  )
     let professional =await professionals.find(elem => elem.id ==  apps[i].professional_id  )
     //apps_html =apps_html +"<tr><td style='font-size: 1.5em; color: #008080;' > <br> "+await showSpecialtyName(apps[i].specialty_reserved)+"</td><td>"+transform_date(apps[i].date)+"</td><td>"+transform_time(apps[i].start_time)+"</td><td>"+professional.name+"</td><td style='font-size: 1.0em; color: #333;'>"+center.address+"</td></tr> ";
-    apps_html =apps_html +"<br><hr><div><div><div><text style='font-size: 1.7em; color: #2A8711;'>"+await showSpecialtyName(apps[i].specialty_reserved)+"</text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_date(apps[i].date)+"</h2></text></div><div><text style='font-size: 1.3em; color: #555;padding: 0.0em;' ><h2>"+transform_time(apps[i].start_time)+"</h2></text></div></div><div><div>"+professional.name+"</div><div style='font-size: 1.0em; color: #333;'>"+center.address+"</div></div></div> <p><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none;  background-color: #7e0000;'   HREF='"+FRONT_HOST+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_ca'>Cancelar</a><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none; background-color: #4f7900;'   HREF='"+FRONT_HOST+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_co'>Confirmar</a></p>" 
+    apps_html =apps_html +"<br><hr><div><div><div>  <div style='text-align: left; font-size: 1.8em; color: rgb(47, 139, 136)'>"+await showSpecialtyName(apps[i].specialty_reserved)+"</div></div><div><div style='text-align: left; font-size: 1.5em; color: rgb(47, 139, 136)' >"+transform_date(apps[i].date)+"</div></div><div><div style='text-align: left; font-size: 1.5em; color: rgb(47, 139, 136)' >"+transform_time(apps[i].start_time)+"</div></div></div><div><div style='text-align: left; font-size: 1.5em; color: rgb(47, 139, 136)'> Con el profesional: "+professional.name+"</div>"
+
+    if (center.home_visit)
+    {
+      apps_html =apps_html +"<div style='text-align: left; font-size: 1.5em; color: rgb(47, 139, 136)' >Cita a Domicilio </div>"
+    }
+    if (center.center_visit)
+    {
+      apps_html =apps_html +"<div style='text-align: left; font-size: 1.5em; color: rgb(47, 139, 136)' >"+center.address+" </div>"
+    }
+    if (center.remote_care)
+    {
+      apps_html =apps_html +"<div style='text-align: left; font-size: 1.5em; color: rgb(47, 139, 136)' > Cita Remota </div>"
+    }
+
+    apps_html =apps_html + "</div></div> <p><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none;  background-color: #7e0000;'   HREF='"+FRONT_HOST+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_ca'>Cancelar</a><A style='padding: 1.0em ;margin:1.0em ; color: rgb(255, 255, 255); text-decoration: none; background-color: #4f7900;'   HREF='"+FRONT_HOST+"/nested/confirmApp.html?params=112233_"+apps[i].id+"_"+apps[i].center_id+"_"+apps[i].patient_doc_id+"_co'>Confirmar</a></p>" 
   }
 
   let aux = await html.replace(/\[appList\]/g, apps_html).replace(/\[FRONT_HOST\]/g,FRONT_HOST)
