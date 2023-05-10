@@ -91,7 +91,8 @@ if (apps_list !=null && apps_list.length > 0)
 
                 let register = { 
                   'email' : apps_list[i].patient_email , 
-                  'message' : aux_message 
+                  'message' : aux_message ,
+                  'extra_subject' : await showSpecialtyName(apps_list[i].specialty_reserved),
                     }
               
                 sendmail(register)
@@ -163,7 +164,7 @@ async function sendmail(data)
             from: "horapo_reserva@horapo.com",
             to: data.email.toLowerCase()  ,
             // subject: "",
-            subject: 'Reserva Exitosa '+await showSpecialtyName(data.specialty_reserved),
+            subject: 'Reserva Exitosa '+data.extra_subject,
             html: data.message ,
             
             ses: {
