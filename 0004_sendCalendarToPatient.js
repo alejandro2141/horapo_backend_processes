@@ -62,7 +62,7 @@ if (email_list != null && email_list.length > 0 )
             }
         let calendar = await getCalendarById(email_list[i].calendar_id) 
         
-        console.log(" CALENDAR :"+JSON.stringify(calendar))  
+        console.log(cdate.toLocaleString()+":S0004:INFO: CALENDAR :"+JSON.stringify(calendar))  
             if (calendar != null  )
             {
               calendar = calendar[0]
@@ -70,12 +70,12 @@ if (email_list != null && email_list.length > 0 )
                 //GET CENTERS
                
                 let center = await getCenter(calendar.center_id)
-                console.log(" CENTER:"+JSON.stringify(center))
+                console.log(cdate.toLocaleString()+":S0004:INFO:CENTER :"+JSON.stringify(center))
                 //GET PROCESSIONAL
                 let professional = await getProfessional(calendar.professional_id)
-                console.log(" PROFESSIONAL:"+JSON.stringify(professional))
+                console.log(cdate.toLocaleString()+":S0004:INFO: PROFESSIONAL:"+JSON.stringify(professional))
                 let specialty = await specialties.find(spec => spec.id === calendar.specialty1 );
-                console.log(" SPECIALTY:"+JSON.stringify(specialty))
+                console.log(cdate.toLocaleString()+":S0004:INFO: SPECIALTY:"+JSON.stringify(specialty))
                 //  center_id_list.indexOf(apps.center_id) === -1 ? center_id_list.push(apps.center_id) : console.log("");
                 //register.apps = html_data_email 
                 
@@ -278,11 +278,26 @@ async function buildHtmlMessage(html,calendar,center,professional,specialty, lin
   let center_address = center.address
   let calendar_id = calendar.id 
 
+  let aux_html = await html.replace(/\[SPECIALTY\]/g,specialty_name).replace(/\[PROFESSIONAL\]/g,professional_name)
+  if (center.home_visit)
+  {
+    aux_html = await aux_html.replace(/\[CENTER\]/g,"Cita a Domicilio")
+  }
+  if (center.center_visit)
+  {
+    aux_html = await aux_html.replace(/\[CENTER\]/g,  center.name+" "+center.address)
+  }
+  if (center.remote_care)
+  {
+    aux_html = await aux_html.replace(/\[CENTER\]/g,"Consulta Remota")
+  }
+  
+  
+  aux_html = await aux_html.replace(/\[LINK_AGENDA\]/g,link).replace(/\[FRONT_HOST\]/g,FRONT_HOST)
+
   
 
-  let aux = await html.replace(/\[SPECIALTY\]/g,specialty_name).replace(/\[PROFESSIONAL\]/g,professional_name).replace(/\[CENTER\]/g,center_address).replace(/\[LINK_AGENDA\]/g,link).replace(/\[FRONT_HOST\]/g,FRONT_HOST)
- 
-  return aux
+  return aux_html
 }
 
 /*
