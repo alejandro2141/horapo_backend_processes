@@ -92,7 +92,7 @@ if (app_list != null && app_list.length > 0 )
                 //let text_date = app_date.getHours()+":"+ app_list[i].getMinutes()
 
                 //push to app list
-                register.message = await buildHtmlMessage(html_template,calendar, center[0], professional[0],specialty ,letLinkAgenda , text_date , text_time  )
+                register.message = await buildHtmlMessage(html_template,calendar, center[0], professional[0],specialty ,letLinkAgenda , text_date , text_time , app_list[i] )
                 email_calendars_list.push(register) 
             }
             else 
@@ -119,7 +119,6 @@ if (app_list != null && app_list.length > 0 )
 }// end if eamil_list 
   
 
-
 }
 
 //************************************************** 
@@ -131,8 +130,8 @@ async function  getAppointmentsToBeCancelled()
   const { Client } = require('pg')
   const client = new Client(conn_data)
   await client.connect()
- 
-      const sql_calendars  = "DELETE   FROM  appointment_cancelled    RETURNING * " ;  
+  //  const sql_calendars  = "DELETE   FROM  appointment_cancelled    RETURNING * " ;  
+      const sql_calendars  = "UPDATE appointment_cancelled  SET  cancelled_notif_sento_patient = true  WHERE  cancelled_notif_sento_patient  IS null  OR cancelled_notif_sento_patient = false   returning *" 
   //  const sql_calendars  = "SELECT * FROM  appointment_cancelled   " ;  
   
   //console.log ("QUERY GET CALENDAR = "+sql_calendars);
@@ -277,7 +276,7 @@ async function readHTMLFile(path) {
   return html_data
 }
 
-async function buildHtmlMessage(html,calendar,center,professional,specialty, link, date, start_time ){
+async function buildHtmlMessage(html,calendar,center,professional,specialty, link, date, start_time , app ){
 //console.log("CENTERS in BUILD HTML:"+JSON.stringify(centers))
   //1st build app list
   apps_html = new String()
@@ -287,10 +286,19 @@ async function buildHtmlMessage(html,calendar,center,professional,specialty, lin
   let center_address = center.address
   let calendar_id = calendar.id 
 
+  let aux = await html.replace(/\[SPECIALTY\]/g,specialty_name).replace(/\[CENTER\]/g,center_address).replace(/\[LINK_AGENDA\]/g,link).replace(/\[DATE\]/g,date).replace(/\[START_TIME\]/g,start_time).replace(/\[FRONT_HOST\]/g,FRONT_HOST)
   
+  //IF IT WAS CANCELLED BY PROFESIONAL
+  if (app.cancelled_professional)
+  {
+    aux =  await aux.replace(/\[PROFESSIONAL\]/g,professional_name)
+  }
+  //IF IT WAS CANCELLED BY PATIENT
+  if (app.cancelled_patient)
+  {
+    aux =  await aux.replace(/\[PROFESSIONAL\]/g,"Usted ")
+  }
 
-  let aux = await html.replace(/\[SPECIALTY\]/g,specialty_name).replace(/\[PROFESSIONAL\]/g,professional_name).replace(/\[CENTER\]/g,center_address).replace(/\[LINK_AGENDA\]/g,link).replace(/\[DATE\]/g,date).replace(/\[START_TIME\]/g,start_time).replace(/\[FRONT_HOST\]/g,FRONT_HOST)
-  
   return aux
 }
 
