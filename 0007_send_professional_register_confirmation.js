@@ -42,6 +42,7 @@ let response = main();
 async function  main()
 {
 //Step 1, Get all EMails request Recover appointments taken
+try { 
 
 html_template = await readHTMLFile(__dirname+"/0007_send_professional_register_confirmation.html")
 //  STEP 1 Get appointments require recover appointments taken
@@ -69,7 +70,12 @@ if (emails != null && emails.length > 0 )
       }
 
 }// end if eamil_list 
-  
+} 
+catch (e)
+{
+  console.log(cdate.toLocaleString()+":S0007:CATCH ERROR PROCESS EXIT:"+e);
+  process.exit()
+}
 
 
 }
