@@ -40,7 +40,11 @@ let response = main();
 //************************************************** 
 async function  main()
 {
-//Step 1, Get all EMails request Recover appointments taken
+
+try { 
+  //Step 1, Get all EMails request Recover appointments taken
+
+
 
 html_template = await readHTMLFile(__dirname+"/0001_sendConfirmationAppointmentTaken.html")
 specialties = await getSpecialties()
@@ -100,6 +104,13 @@ if (apps_list !=null && apps_list.length > 0)
         }// end if eamil_list 
 }
 
+} 
+catch (e)
+{
+  console.log(cdate.toLocaleString()+":S0001:CATCH ERROR PROCESS EXIT:"+info);
+  process.exit()
+}
+
 
 }
 
@@ -107,7 +118,7 @@ if (apps_list !=null && apps_list.length > 0)
 //*********    FUNCTIONS             *************** 
 //************************************************** 
 
-
+/*
 async function getMailNumber()
 {
   let aux = new Date()
@@ -132,7 +143,7 @@ async function get_app_to_notif()
   return res.rows ;
 
 }
-
+*/
 
 //SEND MAIL 
 async function sendmail(data)
