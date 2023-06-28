@@ -42,7 +42,7 @@ let response = main();
 async function  main()
 {
 //Step 1, Get all EMails request Recover appointments taken
-
+try { 
 html_template = await readHTMLFile(__dirname+"/0005_send_notification_patient_appointment_cancelled.html")
 specialties = await getSpecialties()
 locations = await getLocations()
@@ -117,6 +117,14 @@ if (app_list != null && app_list.length > 0 )
       }
 
 }// end if eamil_list 
+
+
+}
+catch (e)
+{
+  console.log(cdate.toLocaleString()+":S0005:ERROR CATCH PROCESS EXIT :"+e);
+  process.exit()
+}
   
 
 }
@@ -250,7 +258,7 @@ async function sendmail(data)
 
         
         // send some mail
-       console.log(cdate.toLocaleString()+":S0003:INFO:EMAILS to send:"+data.email.toLowerCase() )
+       console.log(cdate.toLocaleString()+":S0005:INFO:EMAILS to send:"+data.email.toLowerCase() )
         transporter.sendMail(
           {            
             from: "horapo-cancelacion_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.com",
@@ -264,7 +272,7 @@ async function sendmail(data)
             },
           },
           (info) => {
-            console.log(cdate.toLocaleString()+":S0003:INFO:"+info);
+            console.log(cdate.toLocaleString()+":S0005:INFO:"+info);
           }
         );
    
@@ -272,8 +280,17 @@ async function sendmail(data)
   }
 
 async function readHTMLFile(path) {
-  const html_data = await fs.readFileSync(path,{encoding:'utf8', flag:'r'});
-  return html_data
+  
+  try { 
+    const html_data = await fs.readFileSync(path,{encoding:'utf8', flag:'r'});
+    return html_data
+  }
+  catch (e)
+  {
+    console.log(cdate.toLocaleString()+":S0005:PROCESS EXIT ERRROR READhtml file  :"+e);
+    process.exit()
+  }
+
 }
 
 async function buildHtmlMessage(html,calendar,center,professional,specialty, link, date, start_time , app ){
@@ -316,7 +333,7 @@ async function getCenterData(id){
 }
 
 */
-
+/*
 async function comuna_id2name(id)
 {
   let temp= await locations.find(elem => elem.id ==  id  )
@@ -337,6 +354,8 @@ function transform_time(time)
 let tim = new Date(time) ;
 return (""+new String(tim.getHours()).padStart(2,0)+":"+new String(tim.getMinutes()).padStart(2,0) )
 }
+
+*/
 
 function getMonthName(month)
 {
