@@ -108,7 +108,7 @@ if (email_list != null && email_list.length > 0 )
 }
 catch (e)
 {
-  console.log(cdate.toLocaleString()+":S0002:CATCH ERROR PROCESS EXIT:"+info);
+  console.log(cdate.toLocaleString()+":S0002:CATCH ERROR PROCESS EXIT:"+e);
   process.exit()
 }
 
