@@ -43,13 +43,17 @@ async function  main()
 {
 //Step 1, Get all EMails request Recover appointments taken
 
+try {
 html_template = await readHTMLFile(__dirname+"/0006_send_invitation_to_professional_v2.html")
 //  STEP 1 Get appointments require recover appointments taken
 let emails_list = await getInvitationProfessionalToSend()
-console.log (cdate.toLocaleString()+":S0006:INFO:SEND INVITATION TO PROFESSIONAL :"+JSON.stringify(emails) )
+console.log (cdate.toLocaleString()+":S0006:INFO:SEND INVITATION TO PROFESSIONAL :"+JSON.stringify(emails_list) )
 //  STEP 2 Build all messages and order in array.  
 
 let emails_list_messages = await buildEmailListMessages(emails_list, html_template)
+
+
+
 
 while (emails_list_messages.length >0 ) 
 {
@@ -57,6 +61,13 @@ while (emails_list_messages.length >0 )
    await sendmail(register)
 }
 
+
+}
+catch (e)
+{
+  console.log (cdate.toLocaleString()+":S0006:ERROR PROCESS EXIT :SEND INVITATION TO PROFESSIONAL :"+e )
+  process.exit();
+}
 
 /*
 if (emails != null && emails.length > 0 )
@@ -89,24 +100,31 @@ if (emails != null && emails.length > 0 )
 
 async function buildEmailListMessages(emails_list)
 {
-
-let aux_list_messages = new Array() 
+try {
+  let aux_list_messages = new Array() 
 
   if (emails_list != null && emails_list.length > 0 )
   {
       // WHILE  STEP 2 Get all appointments registered for each email
-      for (let i = 0; i < emails.length ; i++) {
+      for (let i = 0; i < emails_list.length ; i++) {
           
           let register = { 
-                  'email' : emails[i].email , 
+                  'email' : emails_list[i].email , 
                   'message' : "<h1>noDataCancellation</h1>"
               }
           register.message = await buildHtmlMessage(html_template)
           aux_list_messages.push(register)       
         } //END FOR CYCLE 
   }  
-
   return aux_list_messages 
+}
+catch (e)
+{
+  console.log(cdate.toLocaleString()+":S0006:ERROR CATCH: buildEmailListMessages:  "+e)
+  throw e ;
+}
+
+
 }
 
 
@@ -114,6 +132,7 @@ let aux_list_messages = new Array()
 // GET DATA FORM DB
 async function  getInvitationProfessionalToSend()
 {
+  try {
   const { Client } = require('pg')
   const client = new Client(conn_data)
   await client.connect()
@@ -125,6 +144,13 @@ async function  getInvitationProfessionalToSend()
   const res = await client.query(sql_calendars) 
   client.end() 
   return res.rows ;
+  }
+  catch (e)
+  {
+    console.log(cdate.toLocaleString()+":S0006:ERROR CATCH: getInvitationProfessionalToSend:  "+e)
+    throw e 
+  }
+
 }
 
 
@@ -148,14 +174,13 @@ async function sendmail(data)
           SES: { ses, aws },
         });
         
-       // console.log(" Sending Email data :"+JSON.stringify(data))
-
-        
+       // console.log(" Sending Email data :"+JSON.stringify(data))        
         // send some mail
        console.log(cdate.toLocaleString()+":S0006:INFO:EMAILS to send:"+data.email.toLowerCase() )
 
-       
-        transporter.sendMail(
+       try { 
+
+          transporter.sendMail(
           {            
             from: "Equipo_horapo_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.com",
             to: data.email.toLowerCase()  ,
@@ -170,14 +195,31 @@ async function sendmail(data)
             console.log(cdate.toLocaleString()+":S0006:INFO:"+info);
           }
         );
+
+       }
+       catch (e)
+       {
+        console.log(cdate.toLocaleString()+":S0006:ERROR CATCH:EMAILS to send")
+        return 
+
+       }
+      
         
    
 
   }
 
 async function readHTMLFile(path) {
+
+  try { 
   const html_data = await fs.readFileSync(path,{encoding:'utf8', flag:'r'});
   return html_data
+    }
+  catch (e)
+    {
+      console.log(cdate.toLocaleString()+":S0006:ERROR CATCH: readHTMLFile")
+    }
+
 }
 
 async function buildHtmlMessage(html){
