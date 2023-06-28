@@ -45,10 +45,20 @@ async function  main()
 
 html_template = await readHTMLFile(__dirname+"/0006_send_invitation_to_professional_v2.html")
 //  STEP 1 Get appointments require recover appointments taken
-let emails = await getInvitationProfessionalToSend()
+let emails_list = await getInvitationProfessionalToSend()
 console.log (cdate.toLocaleString()+":S0006:INFO:SEND INVITATION TO PROFESSIONAL :"+JSON.stringify(emails) )
+//  STEP 2 Build all messages and order in array.  
+
+let emails_list_messages = await buildEmailListMessages(emails_list, html_template)
+
+while (emails_list_messages.length >0 ) 
+{
+  let register = emails_list_messages.pop()
+   await sendmail(register)
+}
 
 
+/*
 if (emails != null && emails.length > 0 )
 {
     // WHILE  STEP 2 Get all appointments registered for each email
@@ -69,14 +79,38 @@ if (emails != null && emails.length > 0 )
       }
 
 }// end if eamil_list 
-  
-
+*/
 
 }
 
 //************************************************** 
 //*********    FUNCTIONS             *************** 
 //************************************************** 
+
+async function buildEmailListMessages(emails_list)
+{
+
+let aux_list_messages = new Array() 
+
+  if (emails_list != null && emails_list.length > 0 )
+  {
+      // WHILE  STEP 2 Get all appointments registered for each email
+      for (let i = 0; i < emails.length ; i++) {
+          
+          let register = { 
+                  'email' : emails[i].email , 
+                  'message' : "<h1>noDataCancellation</h1>"
+              }
+          register.message = await buildHtmlMessage(html_template)
+          aux_list_messages.push(register)       
+        } //END FOR CYCLE 
+  }  
+
+  return aux_list_messages 
+}
+
+
+
 // GET DATA FORM DB
 async function  getInvitationProfessionalToSend()
 {
