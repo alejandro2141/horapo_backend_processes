@@ -107,7 +107,7 @@ if (apps_list !=null && apps_list.length > 0)
 } 
 catch (e)
 {
-  console.log(cdate.toLocaleString()+":S0001:CATCH ERROR PROCESS EXIT:"+info);
+  console.log(cdate.toLocaleString()+":S0001:CATCH ERROR PROCESS EXIT:"+e);
   process.exit()
 }
 
@@ -118,7 +118,7 @@ catch (e)
 //*********    FUNCTIONS             *************** 
 //************************************************** 
 
-/*
+
 async function getMailNumber()
 {
   let aux = new Date()
@@ -143,7 +143,7 @@ async function get_app_to_notif()
   return res.rows ;
 
 }
-*/
+
 
 //SEND MAIL 
 async function sendmail(data)
