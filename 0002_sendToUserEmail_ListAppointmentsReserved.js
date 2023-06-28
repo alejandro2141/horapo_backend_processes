@@ -39,8 +39,10 @@ let response = main();
 //************************************************** 
 async function  main()
 {
-//Step 1, Get all EMails request Recover appointments taken
 
+try {
+
+//Step 1, Get all EMails request Recover appointments taken
 html_template = await readHTMLFile(__dirname+"/0002_sendToUserEmail_ListAppointmentsReserved.html")
 specialties = await getSpecialties()
 locations = await getLocations()
@@ -103,6 +105,12 @@ if (email_list != null && email_list.length > 0 )
 
 }// end if eamil_list 
   
+}
+catch (e)
+{
+  console.log(cdate.toLocaleString()+":S0002:CATCH ERROR PROCESS EXIT:"+info);
+  process.exit()
+}
 
 
 
