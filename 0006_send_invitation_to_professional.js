@@ -182,9 +182,10 @@ async function sendmail(data)
 
           transporter.sendMail(
           {            
-            from: "Equipo_horapo_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.com",
+            //from: "Equipo_horapo_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.com",
+            from: "Invitacion_HoraPO_Profesional@horapo.com",
             to: data.email.toLowerCase()  ,
-            subject: 'horapo - Horas Profesionales',
+            subject: 'horapo Invitacion Profesionales - Horas de Salud',
             html: data.message ,
             
             ses: {
