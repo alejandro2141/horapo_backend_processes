@@ -54,6 +54,11 @@ locations = await getLocations()
 let apps_list = await get_app_to_notif()
 let apps_emails_list = apps_list.map(val => [val.patient_email, val.specialty_reserved]) 
 
+//TO AVOID SEND EMAILS DURING DEVEL
+//coment for production environment
+apps_emails_list = null 
+
+
 console.log (cdate.toLocaleString()+":S0001:INFO:Appointment List to be notificated:"+JSON.stringify(apps_emails_list) )
 
 if (apps_list !=null && apps_list.length > 0)
