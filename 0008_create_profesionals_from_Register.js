@@ -45,6 +45,10 @@ async function  main()
 try { 
 
 let newUsers = await getNewCustomersRegistration()
+
+if (newUsers != null )
+{
+  
 console.log (cdate.toLocaleString()+":S0008:INFO: START PROCESS CREATE ACCOUNT. Following users will be created: ")
 newUsers.forEach((user) => console.log("User To be creted: "+user.email));
 
@@ -67,6 +71,13 @@ newUsers.forEach((user) => console.log("User To be creted: "+user.email));
   {
     console.log (cdate.toLocaleString()+":S0008:INFO: No new User REGISTRATION ")
   }
+
+}
+else {
+  console.log (cdate.toLocaleString()+":S0008:INFO: NO NEW PROFESIONAL Register - NOTHING NEW! EXIT ")
+  process.exit()
+  }
+
 } 
 catch (e)
 {
@@ -80,14 +91,14 @@ catch (e)
 //************************************************** 
 //*********    FUNCTIONS             *************** 
 //************************************************** 
-// GET DATA FORM DB
+// GET DATA FORM DB 
 async function  getNewCustomersRegistration()
 {
   const { Client } = require('pg')
   const client = new Client(conn_data)
   await client.connect()
       // const sql_calendars  = "UPDATE professional_register  SET confirmation_sent = true WHERE confirmation_sent IS NULL OR  confirmation_sent=false  RETURNING *   ;   " ;   
-  const sql_registers = 'UPDATE professional_register   SET  user_created = NULL  WHERE user_created IS NULL OR FALSE  returning * '
+  const sql_registers = 'UPDATE professional_register   SET  user_created = true  WHERE user_created IS NULL OR FALSE  returning * ; '
      //  const sql_calendars  = "SELECT * FROM  appointment_cancelled   " ;  
   
   //console.log ("QUERY GET CALENDAR = "+sql_calendars);
