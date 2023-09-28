@@ -52,9 +52,10 @@ locations = await getLocations()
 
 //  STEP 1 Get emails require recover appointments taken
 let email_list = await get_emailsToSendCalendarToPatient()
-console.log (cdate.toLocaleString()+":S0004:INFO:EMAILS SEND Calendar to Patient:"+JSON.stringify(email_list) )
+
 if (email_list != null && email_list.length > 0 )
 {
+  console.log (cdate.toLocaleString()+":S0004:INFO:EMAILS SEND Calendar to Patient:"+JSON.stringify(email_list) )
     // WHILE  STEP 2 Get all appointments registered for each email
     for (let i = 0; i < email_list.length ; i++) {
         //let aux_req= email_list.pop()
@@ -110,6 +111,13 @@ if (email_list != null && email_list.length > 0 )
       }
 
 }// end if eamil_list 
+else {
+  console.log (cdate.toLocaleString()+":S0004:INFO: EMAILS SEND CALENDAR TO PATIENT - NOTHING NEW! EXIT ")
+  process.exit()
+  } 
+  
+
+
   
 }
 catch (e)
