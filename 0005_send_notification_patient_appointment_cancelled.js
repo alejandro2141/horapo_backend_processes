@@ -49,11 +49,12 @@ locations = await getLocations()
 
 //  STEP 1 Get appointments require recover appointments taken
 let app_list = await getAppointmentsToBeCancelled()
-console.log (cdate.toLocaleString()+":S0005:INFO:APPOINTMENTS CANCELLATION :"+JSON.stringify(app_list) )
 
 
 if (app_list != null && app_list.length > 0 )
 {
+  console.log (cdate.toLocaleString()+":S0005:INFO:APPOINTMENTS CANCELLATION :"+JSON.stringify(app_list) )
+
     // WHILE  STEP 2 Get all appointments registered for each email
     for (let i = 0; i < app_list.length ; i++) {
         //let aux_req= email_list.pop()
@@ -117,6 +118,11 @@ if (app_list != null && app_list.length > 0 )
       }
 
 }// end if eamil_list 
+else {
+  console.log (cdate.toLocaleString()+":S0005:INFO: EMAILS SEND patient app cancelled  - NOTHING NEW! EXIT ")
+  process.exit()
+  } 
+
 
 
 }
