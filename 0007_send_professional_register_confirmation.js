@@ -47,11 +47,11 @@ try {
 html_template = await readHTMLFile(__dirname+"/0007_send_professional_register_confirmation.html")
 //  STEP 1 Get appointments require recover appointments taken
 let emails = await getEmailsRegisterConfirmation()
-console.log (cdate.toLocaleString()+":S0007:INFO:SEND PROFESSIONAL REGISTER CONFIRMATION :"+JSON.stringify(emails) )
-
 
 if (emails != null && emails.length > 0 )
 {
+  console.log (cdate.toLocaleString()+":S0007:INFO:SEND PROFESSIONAL REGISTER CONFIRMATION :"+JSON.stringify(emails) )
+
     // WHILE  STEP 2 Get all appointments registered for each email
     for (let i = 0; i < emails.length ; i++) {
         
@@ -70,6 +70,12 @@ if (emails != null && emails.length > 0 )
       }
 
 }// end if eamil_list 
+else {
+console.log (cdate.toLocaleString()+":S0007:INFO: EMAILS PROFESIONAL REGISTER CONFIRMATION -  NOTHING NEW! EXIT ")
+process.exit()
+}
+
+
 } 
 catch (e)
 {
@@ -129,7 +135,7 @@ async function sendmail(data)
        
         transporter.sendMail(
           {            
-            from: "Equipo_horapo_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.com",
+            from: "Registro_horapo_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.com",
             to: data.email.toLowerCase()  ,
             subject: 'horapo - Horas Profesionales',
             html: data.message ,
