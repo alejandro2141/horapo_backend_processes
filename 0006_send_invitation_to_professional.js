@@ -47,18 +47,24 @@ try {
 html_template = await readHTMLFile(__dirname+"/0006_send_invitation_to_professional_v2.html")
 //  STEP 1 Get appointments require recover appointments taken
 let emails_list = await getInvitationProfessionalToSend()
-console.log (cdate.toLocaleString()+":S0006:INFO:SEND INVITATION TO PROFESSIONAL :"+JSON.stringify(emails_list) )
-//  STEP 2 Build all messages and order in array.  
 
-let emails_list_messages = await buildEmailListMessages(emails_list, html_template)
-
-
-
-
-while (emails_list_messages.length >0 ) 
+if (emails_list != null && emails_list.length > 0 )
 {
-  let register = emails_list_messages.pop()
-   await sendmail(register)
+  console.log (cdate.toLocaleString()+":S0006:INFO:SEND INVITATION TO PROFESSIONAL :"+JSON.stringify(emails_list) )
+  //  STEP 2 Build all messages and order in array.  
+  let emails_list_messages = await buildEmailListMessages(emails_list, html_template)
+
+  while (emails_list_messages.length >0 ) 
+  {
+    let register = emails_list_messages.pop()
+    await sendmail(register)
+  }
+
+}
+else 
+{
+  console.log (cdate.toLocaleString()+":S0006:INFO: EMAILS SEND INVITATION PROFESIONAL - NOTHING NEW! EXIT ")
+  process.exit()
 }
 
 
