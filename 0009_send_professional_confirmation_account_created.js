@@ -20,7 +20,7 @@ let today = new Date()
 today.setHours(0,0,0,0)
 
 const { Pool, Client } = require('pg')
-let email_invitation_list = new Array() 
+let email_list = new Array() 
 var fs = require('fs');
 //global variables 
 let cdate=new Date()
@@ -44,36 +44,57 @@ async function  main()
 //Step 1, Get all EMails request Recover appointments taken
 try { 
 
-html_template = await readHTMLFile(__dirname+"/0007_send_professional_register_confirmation.html")
-//  STEP 1 Get appointments require recover appointments taken
-let emails = await getEmailsRegisterConfirmation()
-console.log (cdate.toLocaleString()+":S0007:INFO:SEND PROFESSIONAL REGISTER CONFIRMATION :"+JSON.stringify(emails) )
+  html_template = await readHTMLFile(__dirname+"/0009_send_professional_confirmation_account_created.html")
+  //STEP 1 Get appointments require recover appointments taken
+  let accounts = await getAccountCreationConfimationNotSent()
+
+  if (accounts != null && accounts.lenght > 0  )
+  {
+    
+
+  //MAP to leave just user_ids 
+  let professional_id_list = accounts.map(val => val.user_id) 
+  //GET all professional data  belong to user_ids
+  let professionals = await getAllProfessionalsData(professional_id_list)
+  let professionals_emails = professionals.map(val => val.email) 
+  
+  if (professionals_emails != null && professionals_emails.length > 0 )
+  {
+    console.log(cdate.toLocaleString()+":S0009:INFO:SEND PROFESSIONAL ACCOUNT CREATED CONFIRMATION  TO FOLLOWING EMAILS:["+ professionals_emails+"] " );
+
+      // WHILE  STEP 2 Get all appointments registered for each email
+      for (let i = 0; i < professionals_emails.length ; i++) {
+      // console.log("create message to:"+professionals_emails[i]+"  "  )
+          let register = { 
+                  'email' : professionals_emails[i] , 
+                  'message' : "<h1>NO SET</h1>"
+              }
+          register.message = await buildHtmlMessage(html_template, professionals_emails[i] )
+          email_list.push(register)       
+        } //END FOR CYCLE 
+
+      for (let i = 0; i < email_list.length ; i++)
+        {
+          console.log("email to be send to:"+email_list[i]+"  "  )
+          await sendmail(email_list[i])
+        }
+
+  }// end if eamil_list 
+
+  }
+else
+  { 
+    console.log(cdate.toLocaleString()+":S0009:INFO: NO NEW PROFESIONAL REGISTRATION, EXIT" );
+    process.exit()
+  }
 
 
-if (emails != null && emails.length > 0 )
-{
-    // WHILE  STEP 2 Get all appointments registered for each email
-    for (let i = 0; i < emails.length ; i++) {
-        
-        let register = { 
-                'email' : emails[i].email , 
-                'message' : "<h1></h1>"
-            }
-        register.message = await buildHtmlMessage(html_template)
-        email_invitation_list.push(register)       
-      } //END FOR CYCLE 
 
-     for (let i = 0; i < email_invitation_list.length ; i++)
-      {
-        console.log("email to be send to:"+JSON.stringify(email_invitation_list[i])+"  "  )
-         await sendmail(email_invitation_list[i])
-      }
 
-}// end if eamil_list 
 } 
 catch (e)
 {
-  console.log(cdate.toLocaleString()+":S0007:CATCH ERROR PROCESS EXIT:"+e);
+  console.log(cdate.toLocaleString()+":S0009:CATCH ERROR PROCESS EXIT:"+e);
   process.exit()
 }
 
@@ -83,21 +104,30 @@ catch (e)
 //************************************************** 
 //*********    FUNCTIONS             *************** 
 //************************************************** 
-// GET DATA FORM DB
-async function  getEmailsRegisterConfirmation()
+// GET DATA ACCOUNT CREATED BUT NOT CONFIRMED TO PROFESSIONAL YET
+async function  getAccountCreationConfimationNotSent()
 {
   const { Client } = require('pg')
   const client = new Client(conn_data)
-  await client.connect()
- 
-      const sql_calendars  = "UPDATE professional_register  SET confirmation_sent = true WHERE confirmation_sent IS NULL OR  confirmation_sent=false  RETURNING *   ;   " ;  
-  //  const sql_calendars  = "SELECT * FROM  appointment_cancelled   " ;  
-  
-  //console.log ("QUERY GET CALENDAR = "+sql_calendars);
+  await client.connect() 
+  const sql_calendars  = "UPDATE account SET confirmation_sent_creation = true  WHERE confirmation_sent_creation = false  OR confirmation_sent_creation IS NULL  RETURNING * ; " ;  
   const res = await client.query(sql_calendars) 
   client.end() 
   return res.rows ;
 }
+
+// GET PROFESSIONAL DATA 
+async function  getAllProfessionalsData(professionals_id)
+{
+  const { Client } = require('pg')
+  const client = new Client(conn_data)
+  await client.connect() 
+  const sql_calendars  = "SELECT * FROM professional WHERE  id IN ( "+professionals_id+" ) ; " ;  
+  const res = await client.query(sql_calendars) 
+  client.end() 
+  return res.rows ;
+}
+
 
 
 // END GET DATA FORM DB
@@ -124,14 +154,14 @@ async function sendmail(data)
 
         
         // send some mail
-       console.log(cdate.toLocaleString()+":S0007:INFO:EMAILS to send:"+data.email.toLowerCase() )
+       console.log(cdate.toLocaleString()+":S0009:INFO:EMAILS to send:"+data.email.toLowerCase() )
 
        
         transporter.sendMail(
           {            
-            from: "Equipo_horapo_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.com",
+            from: "contacto@horapo.com",
             to: data.email.toLowerCase()  ,
-            subject: 'horapo - Horas Profesionales',
+            subject: 'horapo - Horas Profesionales - Su cuenta ya esta lista para ser utilizada',
             html: data.message ,
             
             ses: {
@@ -152,7 +182,7 @@ async function readHTMLFile(path) {
   return html_data
 }
 
-async function buildHtmlMessage(html){
+async function buildHtmlMessage(html,professional_email){
 //console.log("CENTERS in BUILD HTML:"+JSON.stringify(centers))
   //1st build app list
 /*
@@ -163,13 +193,13 @@ async function buildHtmlMessage(html){
   let center_address = center.address
   let calendar_id = calendar.id 
 
-  
+  [PROF_ACCOUNT]
 
   let aux = await html.replace('[SPECIALTY]',specialty_name).replace('[PROFESSIONAL]',professional_name).replace('[CENTER]',center_address).replace('[LINK_AGENDA]',link).replace('[DATE]',date).replace('[START_TIME]',start_time)
 */
 
 
- let aux = await html.replace(/\[FRONT_HOST\]/g,FRONT_HOST)
+ let aux = await html.replace(/\[FRONT_HOST\]/g,FRONT_HOST).replace('[PROF_ACCOUNT]',professional_email)
   return aux
 }
 
