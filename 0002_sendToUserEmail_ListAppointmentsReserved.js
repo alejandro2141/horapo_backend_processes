@@ -109,7 +109,7 @@ console.log (cdate.toLocaleString()+":S0002:INFO:EMAILS RECOVER Appointments:"+J
 }// end if eamil_list 
 else 
 {
-  console.log (cdate.toLocaleString()+":S0002:INFO: EMAILS RECOVER  - NOTHING NEW! EXIT ")
+  console.log (cdate.toLocaleString()+":S0002:INFO: 0 EXIT ")
   process.exit()
 }
   
