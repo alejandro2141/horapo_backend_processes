@@ -47,21 +47,20 @@ try {
   html_template = await readHTMLFile(__dirname+"/0009_send_professional_confirmation_account_created.html")
   //STEP 1 Get appointments require recover appointments taken
   let accounts = await getAccountCreationConfimationNotSent()
-  console.log(cdate.toLocaleString()+"----------:S0009:INFO:SEND PROFESSIONAL ACCOUNT CREATED CONFIRMATION  lenght "+ accounts.length +" " );
-
-
-  if (accounts != null && accounts.lenght > 0  )
+  
+  if (accounts != null && accounts.length > 0  )
   {
-    
   //MAP to leave just user_ids 
   let professional_id_list = accounts.map(val => val.user_id) 
   //GET all professional data  belong to user_ids
   let professionals = await getAllProfessionalsData(professional_id_list)
   let professionals_emails = professionals.map(val => val.email) 
   
+  //console.log(cdate.toLocaleString()+"----------:S0009:INFO:SEND PROFESSIONAL ACCOUNT CREATED CONFIRMATION EMAILS LIST "+ professionals_emails +" " );
+
   if (professionals_emails != null && professionals_emails.length > 0 )
   {
-    console.log(cdate.toLocaleString()+":S0009:INFO:SEND PROFESSIONAL ACCOUNT CREATED CONFIRMATION  TO FOLLOWING EMAILS:["+ professionals_emails+"] " );
+   // console.log(cdate.toLocaleString()+":S0009:INFO:SEND PROFESSIONAL ACCOUNT CREATED CONFIRMATION  TO FOLLOWING EMAILS:["+ professionals_emails+"] " );
 
       // WHILE  STEP 2 Get all appointments registered for each email
       for (let i = 0; i < professionals_emails.length ; i++) {
@@ -78,6 +77,7 @@ try {
         {
           console.log("email to be send to:"+email_list[i]+"  "  )
           await sendmail(email_list[i])
+          console.log(cdate.toLocaleString()+"----------:S0009:INFO: SEND PROFESSIONAL ACCOUNT CREATED CONFIRMATION  "+ email_list[i] +" " );
         }
 
   }// end if eamil_list 
@@ -117,7 +117,7 @@ async function  getAccountCreationConfimationNotSent()
   const { Client } = require('pg')
   const client = new Client(conn_data)
   await client.connect() 
-  const sql_calendars  = "UPDATE account SET confirmation_sent_creation = true  WHERE confirmation_sent_creation = false  OR confirmation_sent_creation IS NULL  RETURNING * ; " ;  
+  const sql_calendars  = "UPDATE account SET confirmation_sent_creation = true  WHERE (confirmation_sent_creation = false  OR confirmation_sent_creation IS NULL ) RETURNING * ; " ;  
   const res = await client.query(sql_calendars) 
   client.end() 
   return res.rows ;
