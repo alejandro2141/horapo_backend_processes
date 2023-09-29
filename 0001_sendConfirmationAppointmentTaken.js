@@ -108,6 +108,10 @@ if (apps_list !=null && apps_list.length > 0)
             }
         }// end if eamil_list 
 }
+else 
+{
+  
+}
 
 } 
 catch (e)
