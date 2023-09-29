@@ -63,7 +63,7 @@ if (emails_list != null && emails_list.length > 0 )
 }
 else 
 {
-  console.log (cdate.toLocaleString()+":S0006:INFO: EMAILS SEND INVITATION PROFESIONAL - NOTHING NEW! EXIT ")
+  console.log (cdate.toLocaleString()+":S0006:INFO: 0 EXIT ")
   process.exit()
 }
 
