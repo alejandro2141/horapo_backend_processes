@@ -112,7 +112,7 @@ if (email_list != null && email_list.length > 0 )
 
 }// end if eamil_list 
 else {
-  console.log (cdate.toLocaleString()+":S0004:INFO: EMAILS SEND CALENDAR TO PATIENT - NOTHING NEW! EXIT ")
+  console.log (cdate.toLocaleString()+":S0004:INFO: 0 EXIT")
   process.exit()
   } 
   
