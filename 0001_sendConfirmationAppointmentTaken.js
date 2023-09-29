@@ -59,10 +59,11 @@ let apps_emails_list = apps_list.map(val => [val.patient_email, val.specialty_re
 apps_emails_list = null 
 
 
-console.log (cdate.toLocaleString()+":S0001:INFO:Appointment List to be notificated:"+JSON.stringify(apps_emails_list) )
 
 if (apps_list !=null && apps_list.length > 0)
 {
+  console.log (cdate.toLocaleString()+":S0001:INFO:Appointment List to be notificated:"+JSON.stringify(apps_emails_list) )
+
       let center_id_list = apps_list.map(val => val.center_id) 
       //remove duplicated
       let centers = await getCenters(center_id_list)
@@ -110,7 +111,7 @@ if (apps_list !=null && apps_list.length > 0)
 }
 else 
 {
-  
+
 }
 
 } 
