@@ -90,8 +90,10 @@ async function  getNewCustomersRegistration()
   const client = new Client(conn_data)
   await client.connect()
       // ONCE CONFIRMATION SENT TRUE  AND USER STILL NOT CREATED   
-  const sql_registers = 'UPDATE professional_register   SET  user_created = true  WHERE user_created IS NULL OR FALSE  AND  confirmation_sent = true returning * ; '
-     //  const sql_calendars  = "SELECT * FROM  appointment_cancelled   " ;  
+  //const sql_registers = 'UPDATE professional_register   SET  user_created = true  WHERE user_created IS NULL OR FALSE  AND  confirmation_sent = true returning * ; '
+  const sql_registers = 'UPDATE professional_register   SET  user_created = true   WHERE (user_created IS NULL OR user_created IS FALSE) AND (confirmation_sent IS TRUE)  returning * ; '
+
+  //  const sql_calendars  = "SELECT * FROM  appointment_cancelled   " ;  
   
   //console.log ("QUERY GET CALENDAR = "+sql_calendars);
   const res = await client.query(sql_registers) 
