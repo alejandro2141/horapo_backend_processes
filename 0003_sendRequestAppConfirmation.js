@@ -105,7 +105,7 @@ if (email_list != null && email_list.length > 0 )
 
 }// end if eamil_list 
 else {
-console.log (cdate.toLocaleString()+":S0003:INFO: EMAILS REQUEST APP CONFIRMATION  - NOTHING NEW! EXIT ")
+console.log (cdate.toLocaleString()+":S0003:INFO: 0 EXIT")
 process.exit()
 } 
 
