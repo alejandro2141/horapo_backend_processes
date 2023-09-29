@@ -71,7 +71,7 @@ if (emails != null && emails.length > 0 )
 
 }// end if eamil_list 
 else {
-console.log (cdate.toLocaleString()+":S0007:INFO: EMAILS PROFESIONAL REGISTER CONFIRMATION -  NOTHING NEW! EXIT ")
+console.log (cdate.toLocaleString()+":S0007:INFO: 0 EXIT ")
 process.exit()
 }
 
