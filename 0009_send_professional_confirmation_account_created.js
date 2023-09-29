@@ -47,11 +47,12 @@ try {
   html_template = await readHTMLFile(__dirname+"/0009_send_professional_confirmation_account_created.html")
   //STEP 1 Get appointments require recover appointments taken
   let accounts = await getAccountCreationConfimationNotSent()
+  console.log(cdate.toLocaleString()+"----------:S0009:INFO:SEND PROFESSIONAL ACCOUNT CREATED CONFIRMATION  lenght "+ accounts.length +" " );
+
 
   if (accounts != null && accounts.lenght > 0  )
   {
     
-
   //MAP to leave just user_ids 
   let professional_id_list = accounts.map(val => val.user_id) 
   //GET all professional data  belong to user_ids
@@ -80,15 +81,21 @@ try {
         }
 
   }// end if eamil_list 
-
-  }
-else
+  else
   { 
-    console.log(cdate.toLocaleString()+":S0009:INFO: NO NEW PROFESIONAL REGISTRATION, EXIT" );
+    console.log(cdate.toLocaleString()+":S0009:INFO: 0 EXIT" );
     process.exit()
   }
 
 
+
+
+  }
+else
+  { 
+    console.log(cdate.toLocaleString()+":S0009:INFO: 0 EXIT" );
+    process.exit()
+  }
 
 
 } 
