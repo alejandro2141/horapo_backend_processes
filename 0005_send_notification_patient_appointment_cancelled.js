@@ -119,7 +119,7 @@ if (app_list != null && app_list.length > 0 )
 
 }// end if eamil_list 
 else {
-  console.log (cdate.toLocaleString()+":S0005:INFO: EMAILS SEND patient app cancelled  - NOTHING NEW! EXIT ")
+  console.log (cdate.toLocaleString()+":S0005:INFO: 0 EXIT")
   process.exit()
   } 
 
