@@ -110,7 +110,7 @@ async function createProfesional(user)
     await client.connect()
        // const sql_calendars  = "UPDATE professional_register  SET confirmation_sent = true WHERE confirmation_sent IS NULL OR  confirmation_sent=false  RETURNING *   ;   " ;  
     
-      const sql_inserAccount = "INSERT INTO professional (name, document_number, license_number,  email, address, phone , active) VALUES ('"+user.name+"', '"+user.doc_id+"'  ,'No Set', '"+user.email+"' , '"+user.personal_address+"', '"+user.personal_phone+"', false   )  RETURNING * "
+      const sql_inserAccount = "INSERT INTO professional (name, document_number, license_number,  email, address, phone , active) VALUES ('"+user.name+"  "+user.last_name1+" "+user.last_name2+" ', '"+user.doc_id+"'  ,'No Set', '"+user.email+"' , '"+user.personal_address+"', '"+user.personal_phone+"', false   )  RETURNING * "
 
        //  const sql_calendars  = "SELECT * FROM  appointment_cancelled   " ;  
     
