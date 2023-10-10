@@ -158,7 +158,6 @@ async function sendmail(data)
         });
         
        // console.log(" Sending Email data :"+JSON.stringify(data))
-
         
         // send some mail
        console.log(cdate.toLocaleString()+":S0009:INFO:EMAILS to send:"+data.email.toLowerCase() )
@@ -166,7 +165,8 @@ async function sendmail(data)
        
         transporter.sendMail(
           {            
-            from: "contacto@horapo.com",
+            //from: "contacto@horapo.com",
+            from: "Horapo_Registro_Exitoso@horapo.com",
             to: data.email.toLowerCase()  ,
             subject: 'horapo - Horas Profesionales - Su cuenta ya esta lista para ser utilizada',
             html: data.message ,
