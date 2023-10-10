@@ -90,7 +90,7 @@ console.log (cdate.toLocaleString()+":S0002:INFO:EMAILS RECOVER Appointments:"+J
             'email' : aux_email.email , 
             'message' : "<h1> [No Existen Citas Agendadas] </h1>"
           }
-          email_apps_list.push(register) 
+          //email_apps_list.push(register) 
 
         }
       
