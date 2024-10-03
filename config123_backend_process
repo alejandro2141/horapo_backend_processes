@@ -1,7 +1,7 @@
     
-    //FRONT_HOST = "https://devel.horapo.com",
-    //FRONT_HOST = "https://test.horapo.com",
-    //FRONT_HOST = "https://www.horapo.com",
+    //FRONT_HOST = "https://devel.horapo.cl",
+    //FRONT_HOST = "https://test.horapo.cl",
+    //FRONT_HOST = "https://www.horapo.cl",
     FRONT_HOST = "http://localhost:3000",
 
     BKND_TIME = 1000,
