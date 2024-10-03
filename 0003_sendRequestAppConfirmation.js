@@ -252,7 +252,7 @@ async function sendmail(data)
        console.log(cdate.toLocaleString()+":S0003:INFO:EMAILS to send:"+data.email.toLowerCase() )
         transporter.sendMail(
           {            
-            from: "horapo_confirmar_porfavor@horapo.com",
+            from: "horapo_confirmar_porfavor@horapo.cl",
             to: data.email.toLowerCase()  ,
 //            subject: "",
             subject: 'horapo require Confirme su Asistencia',
