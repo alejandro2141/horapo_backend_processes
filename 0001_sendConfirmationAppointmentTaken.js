@@ -186,7 +186,7 @@ async function sendmail(data)
        console.log("S0001:INFO:Finally Transporter Sendmail")
        transporter.sendMail(
           {            
-            from: "horapo_reserva@horapo.com",
+            from: "horapo_reserva@horapo.cl",
             to: data.email.toLowerCase()  ,
             // subject: "",
             subject: 'Reserva Exitosa '+data.extra_subject,
