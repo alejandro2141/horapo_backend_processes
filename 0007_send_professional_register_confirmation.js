@@ -135,8 +135,8 @@ async function sendmail(data)
        
         transporter.sendMail(
           {            
-            //from: "Registro_Horapo_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.com",
-            from: "Horapo_Registro@horapo.com",
+            //from: "Registro_Horapo_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.cl",
+            from: "Horapo_Registro@horapo.cl",
             to: data.email.toLowerCase()  ,
             subject: 'horapo - Horas Profesionales',
             html: data.message ,
