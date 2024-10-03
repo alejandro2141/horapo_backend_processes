@@ -165,8 +165,8 @@ async function sendmail(data)
        
         transporter.sendMail(
           {            
-            //from: "contacto@horapo.com",
-            from: "Horapo_Registro_Exitoso@horapo.com",
+            //from: "contacto@horapo.cl",
+            from: "Horapo_Registro_Exitoso@horapo.cl",
             to: data.email.toLowerCase()  ,
             subject: 'horapo - Horas Profesionales - Su cuenta ya esta lista para ser utilizada',
             html: data.message ,
