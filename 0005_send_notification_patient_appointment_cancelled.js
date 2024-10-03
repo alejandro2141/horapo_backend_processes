@@ -267,7 +267,7 @@ async function sendmail(data)
        console.log(cdate.toLocaleString()+":S0005:INFO:EMAILS to send:"+data.email.toLowerCase() )
         transporter.sendMail(
           {            
-            from: "horapo-cancelacion_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.com",
+            from: "horapo-cancelacion_"+Math.floor(Math.random()* (1000 - 1) + 1)+"@horapo.cl",
             to: data.email.toLowerCase()  ,
 //            subject: "",
             subject: 'horapo - Agenda Profesional para busqueda de horas disponibles',
